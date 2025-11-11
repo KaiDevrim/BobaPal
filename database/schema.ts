@@ -6,7 +6,7 @@ export default appSchema({
     tableSchema({
       name: 'drinks',
       columns: [
-        { name: 'name', type: 'string', isIndexed: true }, // indexed means that we can search the column based on the title
+        { name: 'flavor', type: 'string', isIndexed: true }, // indexed means that we can search the column based on the title
         { name: 'photo_url', type: 'string' },
         { name: 'rating', type: 'number', isIndexed: true },
         { name: 'price', type: 'number', isIndexed: true },

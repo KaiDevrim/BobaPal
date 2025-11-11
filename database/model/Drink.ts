@@ -5,7 +5,7 @@ export default class Drink extends Model {
   static table = 'drinks';
 
   // @ts-ignore
-  @text('name') name: string;
+  @text('flavor') flavor: string;
   // @ts-ignore
   @text('photo_url') photoUrl: string;
   // @ts-ignore

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import database from '../database/index.native';
 
 const AddDrink = () => {
-  const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [flavorText, setFlavorText] = useState<string | null>(null);
   const [price, setPrice] = useState<number | null>(null);
-  const [occasion, setOccasion] = useState<string | null>(null);
   const [store, setStore] = useState<string | null>(null);
+  const [occasion, setOccasion] = useState<string | null>(null);
+  const [rating, setSelectedRating] = useState<number | null>(null);
   return (
     <SafeAreaView style={styles.container}>
       {/* Image Placeholder */}
@@ -90,6 +91,18 @@ const AddDrink = () => {
     </SafeAreaView>
   );
 };
+
+const addDrink = async (flavor, price, store, occasion, rating) => {
+  await database.write(async () => {
+    await database.collections.get('drinks').create(drink => {
+      drink.flavor = flavor;
+      drink.price = price;
+      drink.store = store;
+      drink.occasion = occasion;
+      drink.rating = rating;
+    });
+  });
+};;
 
 const styles = StyleSheet.create({
   container: {
