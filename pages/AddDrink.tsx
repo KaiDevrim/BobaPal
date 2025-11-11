@@ -9,6 +9,53 @@ const AddDrink = () => {
   const [store, setStore] = useState<string | null>(null);
   const [occasion, setOccasion] = useState<string | null>(null);
   const [rating, setSelectedRating] = useState<number | null>(null);
+
+  const saveDrink = async () => {
+    if (!flavorText) {
+      alert('Please enter a flavor');
+      return;
+    }
+    if (price === null) {
+      alert('Please enter a price');
+      return;
+    }
+    if (!store) {
+      alert('Please enter store');
+      return;
+    }
+    if (!occasion) {
+      alert('Please enter occasion');
+      return;
+    }
+    if (rating === null) {
+      alert('Please select a rating');
+      return;
+    }
+
+    try {
+      await database.write(async () => {
+        const currentDate = new Date().toISOString().slice(0, 10);
+        await database.collections.get('drinks').create(drink => {
+          drink.flavor = flavorText;
+          drink.price = price;
+          drink.store = store;
+          drink.occasion = occasion;
+          drink.rating = rating;
+          drink.date = currentDate;
+        });
+      });
+      alert('Drink saved!');
+      // Reset fields after save
+      setFlavorText('');
+      setPrice(null);
+      setStore('');
+      setOccasion('');
+      setSelectedRating(null);
+    } catch (error) {
+      console.error('Failed to save drink:', error);
+      alert('Failed to save drink');
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       {/* Image Placeholder */}
@@ -31,7 +78,7 @@ const AddDrink = () => {
         style={styles.input}
         placeholder="e.g. Strawberry Matcha Latte"
         placeholderTextColor="#999"
-        onChangeText={newFlavor => setFlavorText(newFlavor)}
+        onChangeText={setFlavorText}
       />
 
       {/* Price Input */}
@@ -43,7 +90,7 @@ const AddDrink = () => {
         keyboardType="numeric"
         onChangeText={text => {
           const numericPrice = parseFloat(text);
-          setPrice(isNaN(numericPrice) ? 0 : numericPrice);
+          setPrice(isNaN(numericPrice) ? null : numericPrice);
         }}
       />
 
@@ -53,7 +100,7 @@ const AddDrink = () => {
         style={styles.input}
         placeholder="e.g. Tsaocaa"
         placeholderTextColor="#999"
-        onChangeText={newStore => setStore(newStore)}
+        onChangeText={setStore}
       />
 
       {/* Occasion Input */}
@@ -62,47 +109,35 @@ const AddDrink = () => {
         style={styles.input}
         placeholder="e.g. Celebrating that I passed my exam!"
         placeholderTextColor="#999"
-        onChangeText={newOccasion => setOccasion(newOccasion)}
+        onChangeText={setOccasion}
       />
 
       {/* Rating */}
       <Text style={styles.label}>Rating</Text>
       <View style={styles.ratingContainer}>
-        {[1, 2, 3, 4].map((rating) => (
+        {[1, 2, 3, 4].map(value => (
           <TouchableOpacity
-            key={rating}
+            key={value}
+            onPress={() => setSelectedRating(value)}
             style={styles.emojiButton}
-            onPress={() => setSelectedRating(rating)}
           >
             <Text style={styles.emoji}>
-              {rating === 1 && '😞'}
-              {rating === 2 && '😐'}
-              {rating === 3 && '🙂'}
-              {rating === 4 && '😊'}
+              {value === 1 && '😞'}
+              {value === 2 && '😐'}
+              {value === 3 && '🙂'}
+              {value === 4 && '😊'}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
 
       {/* Submit Button */}
-      <TouchableOpacity style={styles.submitButton}>
+      <TouchableOpacity style={styles.submitButton} onPress={saveDrink}>
         <Text style={styles.submitButtonText}>Log My Boba!</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
 };
-
-const addDrink = async (flavor, price, store, occasion, rating) => {
-  await database.write(async () => {
-    await database.collections.get('drinks').create(drink => {
-      drink.flavor = flavor;
-      drink.price = price;
-      drink.store = store;
-      drink.occasion = occasion;
-      drink.rating = rating;
-    });
-  });
-};;
 
 const styles = StyleSheet.create({
   container: {

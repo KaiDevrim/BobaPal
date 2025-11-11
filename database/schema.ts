@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
 export default appSchema({
-  version: 2,
+  version: 4,
   tables: [
     tableSchema({
       name: 'drinks',
@@ -12,6 +12,7 @@ export default appSchema({
         { name: 'price', type: 'number', isIndexed: true },
         { name: 'occasion', type: 'string', isIndexed: true },
         { name: 'store', type: 'string', isIndexed: true },
+        { name: 'date', type: 'string', isIndexed: true },
       ],
     }),
   ]

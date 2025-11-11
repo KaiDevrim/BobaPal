@@ -1,5 +1,5 @@
 import { Model } from '@nozbe/watermelondb'
-import { field, text } from '@nozbe/watermelondb/decorators';
+import { date, field, text } from '@nozbe/watermelondb/decorators';
 
 export default class Drink extends Model {
   static table = 'drinks';
@@ -16,4 +16,6 @@ export default class Drink extends Model {
   @text('occasion') occasion: string;
   // @ts-ignore
   @text('store') store: string;
+  // @ts-ignore
+  @date('date') date: string;
 }

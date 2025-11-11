@@ -4,7 +4,7 @@ export default schemaMigrations({
   migrations: [
     {
       // ⚠️ Set this to a number one larger than the current schema version
-      toVersion: 2,
+      toVersion: 4,
       steps: [
         // See "Migrations API" for more details
         createTable({
@@ -16,6 +16,7 @@ export default schemaMigrations({
             { name: 'price', type: 'number', isIndexed: true },
             { name: 'occasion', type: 'string', isIndexed: true },
             { name: 'store', type: 'string', isIndexed: true },
+            { name: 'date', type: 'string', isIndexed: true },
           ],
         }),
       ],
