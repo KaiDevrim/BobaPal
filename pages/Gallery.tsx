@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet, Text } from 'react-native';
+import { View, FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import MyDrinkCard from '../components/MyDrinkCard';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import database from '../database/index.native';
 
 const Gallery = () => {
@@ -36,8 +36,12 @@ const Gallery = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const renderItem = ({ item }: { item: { id: string; flavor: string; date: string } }) => (
-    <MyDrinkCard title={item.flavor} date={item.date} />
+  const navigation = useNavigation();
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity onPress={() => navigation.navigate('DrinkDetail', { drinkId: item.id })}>
+      <MyDrinkCard title={item.flavor} date={item.date} />
+    </TouchableOpacity>
   );
 
   if (drinks.length === 0) {

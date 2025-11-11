@@ -3,29 +3,27 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 // @ts-ignore
-export default function BottomBar({ state, navigation }) {
-  const activeRouteName = state.routes[state.index].name;
-
+export default function BottomBar({ currentTab, setCurrentTab }) {
   return (
     <View style={styles.bottomBar}>
-      <TouchableOpacity onPress={() => navigation.navigate('Gallery')}>
+      <TouchableOpacity onPress={() => setCurrentTab('Gallery')}>
         <View style={styles.tabItem}>
-          <AntDesign style={styles.icon} name="home" size={22} color={activeRouteName === 'Gallery' ? 'orange' : 'white'} />
-          <Text style={{ color: activeRouteName === 'Gallery' ? 'orange' : 'white' }} className="text-sm" >Home</Text>
+          <AntDesign style={styles.icon} name="home" size={22} color={currentTab === 'Gallery' ? 'orange' : 'white'} />
+          <Text style={{ color: currentTab === 'Gallery' ? 'orange' : 'white' }} className="text-sm" >Home</Text>
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('AddDrink')}>
+      <TouchableOpacity onPress={() => setCurrentTab('AddDrink')}>
         <View style={styles.tabItem}>
-          <AntDesign style={styles.icon} name="plus-circle" size={22} color={activeRouteName === 'AddDrink' ? 'orange' : 'white'} />
-          <Text style={{ color: activeRouteName === 'AddDrink' ? 'orange' : 'white' }}>Add Boba</Text>
+          <AntDesign style={styles.icon} name="plus-circle" size={22} color={currentTab === 'AddDrink' ? 'orange' : 'white'} />
+          <Text style={{ color: currentTab === 'AddDrink' ? 'orange' : 'white' }}>Add Boba</Text>
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Stats')}>
+      <TouchableOpacity onPress={() => setCurrentTab('Stats')}>
         <View style={styles.tabItem}>
-          <AntDesign style={styles.icon} name="line-chart" size={22} color={activeRouteName === 'Stats' ? 'orange' : 'white'} />
-          <Text style={{ color: activeRouteName === 'Stats' ? 'orange' : 'white' }}>Stats</Text>
+          <AntDesign style={styles.icon} name="line-chart" size={22} color={currentTab === 'Stats' ? 'orange' : 'white'} />
+          <Text style={{ color: currentTab === 'Stats' ? 'orange' : 'white' }}>Stats</Text>
         </View>
       </TouchableOpacity>
     </View>
