@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import database from '../database/index.native';
+import Drink from '../database/model/Drink';
 
 const AddDrink = () => {
   const [flavorText, setFlavorText] = useState<string | null>(null);
@@ -35,7 +36,7 @@ const AddDrink = () => {
     try {
       await database.write(async () => {
         const currentDate = new Date().toISOString().slice(0, 10);
-        await database.collections.get('drinks').create(drink => {
+        await database.collections.get<Drink>('drinks').create(drink => {
           drink.flavor = flavorText;
           drink.price = price;
           drink.store = store;
@@ -145,6 +146,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     paddingHorizontal: 20,
+    paddingTop: 20
   },
   imagePlaceholder: {
     width: 100,

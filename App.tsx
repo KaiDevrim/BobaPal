@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import BottomBar from './components/BottomBar';
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Gallery from './pages/Gallery';
 import AddDrink from './pages/AddDrink';
 import Stats from './pages/Stats';
@@ -12,7 +11,6 @@ import database from './database/index.native';
 import { createStackNavigator } from '@react-navigation/stack';
 import DrinkDetail from './pages/DrinkDetail';
 
-const Tab = createBottomTabNavigator();
 const TABS = {
   Gallery: Gallery,
   AddDrink: AddDrink,
@@ -26,7 +24,7 @@ export default function App() {
         <SafeAreaView style={styles.container}>
           <NavigationContainer>
             <Stack.Navigator>
-              <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+              <Stack.Screen name="Gallery" component={MainTabs} />
               <Stack.Screen name="DrinkDetail" component={DrinkDetail} />
             </Stack.Navigator>
           </NavigationContainer>
@@ -59,5 +57,6 @@ function MainTabs({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: -50,
   },
 });

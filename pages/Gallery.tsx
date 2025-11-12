@@ -3,19 +3,16 @@ import { View, FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native
 import MyDrinkCard from '../components/MyDrinkCard';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import database from '../database/index.native';
+import Drink from '../database/model/Drink';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 const Gallery = () => {
-  const [drinks, setDrinks] = useState<Array<{ id: string; flavor: string; date: string }>>([]);
+  const [drinks, setDrinks] = useState<Drink[]>([]);
   const fetchDrinks = async () => {
     try {
-      const drinksCollection = database.collections.get('drinks');
+      const drinksCollection = database.collections.get<Drink>('drinks');
       const allDrinks = await drinksCollection.query().fetch();
-      const drinkItems = allDrinks.map(drink => ({
-        id: drink.id,
-        flavor: drink.flavor,
-        date: drink.date,
-      }));
-      setDrinks(drinkItems);
+      setDrinks(allDrinks);
     } catch (error) {
       console.error('Failed to fetch drinks:', error);
     }
@@ -24,25 +21,29 @@ const Gallery = () => {
   // Refetch when screen is focused
   useFocusEffect(
     useCallback(() => {
-      fetchDrinks();
+      fetchDrinks().then(r => r);
     }, [])
   );
 
   // Refetch every second
   useEffect(() => {
     const interval = setInterval(() => {
-      fetchDrinks();
+      fetchDrinks().then(r => r);
     }, 1000);
     return () => clearInterval(interval);
   }, []);
 
-  const navigation = useNavigation();
-
-  const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('DrinkDetail', { drinkId: item.id })}>
-      <MyDrinkCard title={item.flavor} date={item.date} />
-    </TouchableOpacity>
-  );
+  type RootStackParamList = {
+    DrinkDetail: { drinkId: string };
+  };
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const renderItem = ({ item }: { item: Drink }) =>{
+    return (
+      <TouchableOpacity onPress={() => navigation.navigate('DrinkDetail', { drinkId: item.id })}>
+        <MyDrinkCard title={item.flavor} date={item.date} />
+      </TouchableOpacity>
+    );
+  };
 
   if (drinks.length === 0) {
     return (
@@ -54,7 +55,7 @@ const Gallery = () => {
 
   return (
     <View style={styles.container}>
-      <FlatList
+      <FlatList<Drink>
         data={drinks}
         renderItem={renderItem}
         numColumns={2}
@@ -69,7 +70,8 @@ const Gallery = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: 15,
+    paddingTop: 50
   },
   row: {
     justifyContent: 'space-between',
