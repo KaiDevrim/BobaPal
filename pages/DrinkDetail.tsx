@@ -24,7 +24,7 @@ const DrinkDetail = ({ route }) => {
     <View style={styles.container}>
       {/* Image Placeholder */}
       <Image
-        source={drink.photoUrl ? { uri: drink.photoUrl } : require("../assets/boba.jpg")}
+        source={drink.photoUrl ? { uri: drink.photoUrl } : require("../assets/boba2.jpg")}
         style={styles.image}
       />
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import BottomBar from './components/BottomBar';
 import { NavigationContainer } from '@react-navigation/native';
 import Gallery from './pages/Gallery';
@@ -41,7 +41,9 @@ function MainTabs({ navigation }) {
 
   // @ts-ignore
   const ActiveTabComponent = TABS[currentTab];
-
+  useEffect(() => {
+    navigation.setOptions({ title: currentTab });
+  }, [currentTab, navigation]);
   // Pass the navigation prop down so you can navigate to DrinkDetail etc. from any page
   return (
     <View style={styles.container}>
