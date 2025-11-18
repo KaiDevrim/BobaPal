@@ -40,7 +40,7 @@ const Gallery = () => {
   const renderItem = ({ item }: { item: Drink }) =>{
     return (
       <TouchableOpacity onPress={() => navigation.navigate('DrinkDetail', { drinkId: item.id })}>
-        <MyDrinkCard title={item.flavor} date={item.date} />
+        <MyDrinkCard title={item.flavor} date={item.date} image={item.photoUrl} />
       </TouchableOpacity>
     );
   };

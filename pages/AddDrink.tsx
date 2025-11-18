@@ -3,23 +3,28 @@ import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'reac
 import { SafeAreaView } from 'react-native-safe-area-context';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
+import * as ImagePicker from 'expo-image-picker';
+import { ImagePickerResult } from 'expo-image-picker';
 
 const AddDrink = () => {
   const [flavorText, setFlavorText] = useState<string | null>(null);
   const [price, setPrice] = useState<number | null>(null);
+  const [priceText, setPriceText] = useState<string>('');
   const [store, setStore] = useState<string | null>(null);
   const [occasion, setOccasion] = useState<string | null>(null);
   const [rating, setSelectedRating] = useState<number | null>(null);
-
+  const [image, setImage] = useState<string | null>(null);
   const saveDrink = async () => {
     if (!flavorText) {
       alert('Please enter a flavor');
       return;
     }
-    if (price === null) {
-      alert('Please enter a price');
+    const numericPrice = parseFloat(priceText);
+    if (isNaN(numericPrice)) {
+      alert('Please enter a valid price');
       return;
     }
+
     if (!store) {
       alert('Please enter store');
       return;
@@ -32,35 +37,59 @@ const AddDrink = () => {
       alert('Please select a rating');
       return;
     }
+    if (!image) {
+      alert('Please enter a image');
+      return;
+    }
 
     try {
       await database.write(async () => {
         const currentDate = new Date().toISOString().slice(0, 10);
         await database.collections.get<Drink>('drinks').create(drink => {
           drink.flavor = flavorText;
-          drink.price = price;
+          drink.price = numericPrice;
           drink.store = store;
           drink.occasion = occasion;
           drink.rating = rating;
           drink.date = currentDate;
+          drink.photoUrl = image;
         });
       });
       alert('Drink saved!');
       // Reset fields after save
       setFlavorText('');
+      setPriceText('')
       setPrice(null);
       setStore('');
       setOccasion('');
       setSelectedRating(null);
+      setImage(null);
     } catch (error) {
       console.error('Failed to save drink:', error);
       alert('Failed to save drink');
     }
   };
+
+  const pickImage = async () => {
+    let result: ImagePickerResult = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4,3],
+      quality: 1,
+    })
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri)
+    }
+  }
   return (
     <SafeAreaView style={styles.container}>
       {/* Image Placeholder */}
-      <Image source={require("../assets/boba.jpg")} style={styles.imagePlaceholder} />
+
+      <Image
+        source={image ? { uri: image } : require("../assets/boba.jpg")}
+        style={styles.imagePlaceholder}
+      />
 
       {/* Photo Buttons */}
       <View style={styles.buttonRow}>
@@ -68,7 +97,7 @@ const AddDrink = () => {
           <Text style={styles.secondaryButtonText}>Take Photo</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.primaryButton}>
+        <TouchableOpacity style={styles.primaryButton} onPress={pickImage}>
           <Text style={styles.primaryButtonText}>Choose Photo</Text>
         </TouchableOpacity>
       </View>
@@ -80,6 +109,7 @@ const AddDrink = () => {
         placeholder="e.g. Strawberry Matcha Latte"
         placeholderTextColor="#999"
         onChangeText={setFlavorText}
+        value={flavorText || ''}
       />
 
       {/* Price Input */}
@@ -90,9 +120,12 @@ const AddDrink = () => {
         placeholderTextColor="#999"
         keyboardType="numeric"
         onChangeText={text => {
-          const numericPrice = parseFloat(text);
-          setPrice(isNaN(numericPrice) ? null : numericPrice);
+          // Allow only digits and decimal point, basic validation
+          if (/^\d*\.?\d*$/.test(text)) {
+            setPriceText(text);
+          }
         }}
+        value={priceText}
       />
 
       {/* Store Input */}
@@ -102,6 +135,7 @@ const AddDrink = () => {
         placeholder="e.g. Tsaocaa"
         placeholderTextColor="#999"
         onChangeText={setStore}
+        value={store || ''}
       />
 
       {/* Occasion Input */}
@@ -111,6 +145,7 @@ const AddDrink = () => {
         placeholder="e.g. Celebrating that I passed my exam!"
         placeholderTextColor="#999"
         onChangeText={setOccasion}
+        value={occasion || ''}
       />
 
       {/* Rating */}
@@ -120,7 +155,10 @@ const AddDrink = () => {
           <TouchableOpacity
             key={value}
             onPress={() => setSelectedRating(value)}
-            style={styles.emojiButton}
+            style={[
+              styles.emojiButton,
+              rating === value && styles.selectedEmojiButton,  // conditional style
+            ]}
           >
             <Text style={styles.emoji}>
               {value === 1 && '😞'}
@@ -235,6 +273,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  selectedEmojiButton: {
+    backgroundColor: '#4A90E2',
+    borderRadius: 12,
+    padding: 5,
+  }
 });
 
 export default AddDrink;

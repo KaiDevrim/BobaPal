@@ -42,7 +42,7 @@ function MainTabs({ navigation }) {
   // @ts-ignore
   const ActiveTabComponent = TABS[currentTab];
 
-  // Pass the navigation prop down so you can navigate to DrinkDetail etc from any page
+  // Pass the navigation prop down so you can navigate to DrinkDetail etc. from any page
   return (
     <View style={styles.container}>
       <ActiveTabComponent navigation={navigation} />

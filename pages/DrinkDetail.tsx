@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
 
@@ -23,18 +23,10 @@ const DrinkDetail = ({ route }) => {
   return (
     <View style={styles.container}>
       {/* Image Placeholder */}
-      <Image source={require('../assets/boba.jpg')} style={styles.imagePlaceholder} />
-
-      {/* Photo Buttons */}
-      <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.secondaryButton}>
-          <Text style={styles.secondaryButtonText}>Take Photo</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.primaryButton}>
-          <Text style={styles.primaryButtonText}>Choose Photo</Text>
-        </TouchableOpacity>
-      </View>
+      <Image
+        source={drink.photoUrl ? { uri: drink.photoUrl } : require("../assets/boba.jpg")}
+        style={styles.image}
+      />
 
       {/* Flavor Input */}
       <Text style={styles.label}>Flavor</Text>
@@ -42,7 +34,7 @@ const DrinkDetail = ({ route }) => {
 
       {/* Price Input */}
       <Text style={styles.label}>Price</Text>
-      <Text style={styles.input}>{drink.price}</Text>
+      <Text style={styles.input}>${drink.price}</Text>
 
       {/* Store Input */}
       <Text style={styles.label}>Store</Text>
@@ -66,9 +58,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20
   },
-  imagePlaceholder: {
-    width: 100,
-    height: 100,
+  image: {
+    width: 200,
+    height: 200,
     borderRadius: 100,
     backgroundColor: '#f5f5f5',
     justifyContent: 'center',

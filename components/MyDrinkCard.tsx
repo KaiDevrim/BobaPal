@@ -2,10 +2,13 @@ import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 
 // @ts-ignore
-const MyDrinkCard = ({ title, date }) => {
+const MyDrinkCard = ({ title, date, image }) => {
   return (
     <View style={styles.card}>
-      <Image source={require('../assets/boba2.jpg')} style={styles.image} />
+      <Image
+        source={image ? { uri: image } : require("../assets/boba.jpg")}
+        style={styles.image}
+      />
       <View style={styles.textContainer}>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.date}>{date}</Text>
