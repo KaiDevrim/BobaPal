@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.28.5",
+    "@react-native/metro-config": "^0.82.1",
     "@types/react": "~19.1.17",
     "@react-native-community/cli": "latest",
     "eslint": "^9.39.1",

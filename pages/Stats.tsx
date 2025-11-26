@@ -48,22 +48,56 @@ const Stats = () => {
   // Get top 3 entries
   const top3Stores = [...sortedStores.entries()].slice(0, 3);
 
+  // @ts-ignore
+  const StatsCard = ({ icon, number, label }) => {
+    return (
+      <SafeAreaView style={styles.cardContainer}>
+        <SafeAreaView style={styles.card}>
+          <Text style={styles.icon}>{icon}</Text>
+          <Text style={styles.number}>{number}</Text>
+          <Text style={styles.label}>{label}</Text>
+        </SafeAreaView>
+      </SafeAreaView>
+    );
+  };
+
+  const StatsRow = () => {
+    return (
+      <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.cardsRow}>
+          <StatsCard icon="☕" number={drinkCount} label="DRINKS" />
+          <StatsCard icon="🛒" number={storeCount} label="STORES" />
+        </SafeAreaView>
+      </SafeAreaView>
+    );
+  };
+
+  if (drinkCount === 0) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Your Boba stats</Text>
+        <Text>Add more boba to see your stats</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Your Boba stats</Text>
-      <Text>You have had a total of: {drinkCount}</Text>
-      <Text>You have been to: {storeCount} stores</Text>
-      <Text>You have spent: ${totalSpent.toFixed(2)}</Text>
-      <Text>
-        Your average boba price is:{' '}
-        {drinkCount > 0 ? `$${(totalSpent / drinkCount).toFixed(2)}` : 'N/A'}
-      </Text>
-      <Text>Your top 3 stores are:</Text>
-      {top3Stores.map(([store, count], index) => (
-        <Text key={index}>
-          {store} ({count} visit{count > 1 ? 's' : ''})
-        </Text>
-      ))}
+      <StatsRow />
+      {/*<Text style={{ fontSize: 20, fontWeight: 'bold' }}>Your Boba stats</Text>*/}
+      {/*<Text>You have had a total of: {drinkCount}</Text>*/}
+      {/*<Text>You have been to: {storeCount} stores</Text>*/}
+      {/*<Text>You have spent: ${totalSpent.toFixed(2)}</Text>*/}
+      {/*<Text>*/}
+      {/*  Your average boba price is:{' '}*/}
+      {/*  {drinkCount > 0 ? `$${(totalSpent / drinkCount).toFixed(2)}` : 'N/A'}*/}
+      {/*</Text>*/}
+      {/*<Text>Your top 3 stores are:</Text>*/}
+      {/*{top3Stores.map(([store, count], index) => (*/}
+      {/*  <Text key={index}>*/}
+      {/*    {store} ({count} visit{count > 1 ? 's' : ''})*/}
+      {/*  </Text>*/}
+      {/*))}*/}
     </SafeAreaView>
   );
 };
@@ -71,11 +105,48 @@ const Stats = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     backgroundColor: 'white',
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingVertical: -500
   },
+  cardsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 15,
+    paddingBottom: 200
+  },
+  cardContainer: {
+    flex: 1,
+  },
+  card: {
+    backgroundColor: '#F5EDE4',
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#3D2317',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 8,
+    borderWidth: 3,
+    borderColor: '#3D2317',
+    paddingTop: -40
+  },
+  icon: {
+    fontSize: 32,
+  },
+  number: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#3D2317',
+    marginBottom: 4,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#3D2317',
+    letterSpacing: 1,
+  }
 });
 
 export default Stats;

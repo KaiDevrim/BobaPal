@@ -5,6 +5,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Gallery = () => {
   const [drinks, setDrinks] = useState<Drink[]>([]);
@@ -47,9 +48,10 @@ const Gallery = () => {
 
   if (drinks.length === 0) {
     return (
-      <View style={styles.container}>
-        <Text>No drinks have been added</Text>
-      </View>
+      <SafeAreaView style={styles.container}>
+        <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Your Boba stats</Text>
+        <Text>Add more boba to see your stats</Text>
+      </SafeAreaView>
     );
   }
 
