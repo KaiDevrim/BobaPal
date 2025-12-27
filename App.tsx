@@ -1,75 +1,142 @@
-import React, { useEffect, useState } from 'react';
-import BottomBar from './components/BottomBar';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { DatabaseProvider } from '@nozbe/watermelondb/react';
+import { Amplify } from 'aws-amplify';
+import { signInWithRedirect } from 'aws-amplify/auth';
+import { useAuthenticator, Authenticator } from '@aws-amplify/ui-react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+
+import amplifyConfig from './src/amplifyconfiguration.json';
+import database from './database/index.native';
+import BottomBar from './components/BottomBar';
 import Gallery from './pages/Gallery';
 import AddDrink from './pages/AddDrink';
 import Stats from './pages/Stats';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet, View } from 'react-native';
-import { DatabaseProvider } from '@nozbe/watermelondb/react';
-import database from './database/index.native';
-import { createStackNavigator } from '@react-navigation/stack';
 import DrinkDetail from './pages/DrinkDetail';
-import { Authenticator } from '@aws-amplify/ui-react-native';
 
-const TABS = {
-  Gallery: Gallery,
-  AddDrink: AddDrink,
-  Stats: Stats,
+Amplify.configure(amplifyConfig);
+
+export type RootStackParamList = {
+  MainTabs: undefined;
+  DrinkDetail: { drinkId: string };
 };
-const Stack = createStackNavigator();
-function AuthenticatedApp() {
+
+export type TabParamList = {
+  Gallery: undefined;
+  AddDrink: undefined;
+  Stats: undefined;
+};
+
+const Stack = createStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<TabParamList>();
+
+const MainTabs: React.FC = () => (
+  <Tab.Navigator
+    screenOptions={{ headerShown: false }}
+    tabBar={(props) => <BottomBar {...props} />}>
+    <Tab.Screen name="Gallery" component={Gallery} />
+    <Tab.Screen name="AddDrink" component={AddDrink} />
+    <Tab.Screen name="Stats" component={Stats} />
+  </Tab.Navigator>
+);
+
+const AuthenticatedApp: React.FC = () => (
+  <DatabaseProvider database={database}>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="MainTabs" component={MainTabs} />
+          <Stack.Screen name="DrinkDetail" component={DrinkDetail} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
+  </DatabaseProvider>
+);
+
+const CustomSignIn: React.FC = () => {
+  const handleGoogleSignIn = () => {
+    signInWithRedirect({ provider: 'Google' });
+  };
+
   return (
-    <DatabaseProvider database={database}>
-      <SafeAreaProvider>
-        <SafeAreaView style={styles.container}>
-          <NavigationContainer>
-            <Stack.Navigator>
-              <Stack.Screen name="Gallery" component={MainTabs} />
-              <Stack.Screen name="DrinkDetail" component={DrinkDetail} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </SafeAreaView>
-      </SafeAreaProvider>
-    </DatabaseProvider>
-  );
-}
+    <View style={authStyles.container}>
+      <Text style={authStyles.title}>🧋 Buhba</Text>
+      <Text style={authStyles.subtitle}>Track your boba adventures</Text>
 
-export default function App() {
-  return (
-    <Authenticator.Provider>
-      <Authenticator>
-        <AuthenticatedApp />
-      </Authenticator>
-    </Authenticator.Provider>
-  );
-}
-
-
-// @ts-ignore
-function MainTabs({ navigation }) {
-  const [currentTab, setCurrentTab] = useState('Gallery');
-
-  // @ts-ignore
-  const ActiveTabComponent = TABS[currentTab];
-  useEffect(() => {
-    navigation.setOptions({ title: currentTab });
-  }, [currentTab, navigation]);
-  // Pass the navigation prop down so you can navigate to DrinkDetail etc. from any page
-  return (
-    <View style={styles.container}>
-      <ActiveTabComponent navigation={navigation} />
-      <BottomBar
-        currentTab={currentTab}
-        setCurrentTab={setCurrentTab}
-      />
+      <TouchableOpacity style={authStyles.googleButton} onPress={handleGoogleSignIn}>
+        <Image
+          source={{ uri: 'https://developers.google.com/identity/images/g-logo.png' }}
+          style={authStyles.googleIcon}
+        />
+        <Text style={authStyles.googleButtonText}>Continue with Google</Text>
+      </TouchableOpacity>
     </View>
   );
-}
+};
 
-const styles = StyleSheet.create({
+const authStyles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: -50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFF8F0',
+    padding: 20,
+  },
+  title: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#3D2317',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 18,
+    color: '#666',
+    marginBottom: 40,
+  },
+  googleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  googleIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
+  },
+  googleButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
   },
 });
+
+const AppContent: React.FC = () => {
+  const { authStatus } = useAuthenticator((context) => [context.authStatus]);
+
+  if (authStatus === 'authenticated') {
+    return <AuthenticatedApp />;
+  }
+
+  return <CustomSignIn />;
+};
+
+const App: React.FC = () => (
+  <Authenticator.Provider>
+    <AppContent />
+  </Authenticator.Provider>
+);
+
+export default App;

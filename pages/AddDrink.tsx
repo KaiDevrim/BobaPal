@@ -1,176 +1,172 @@
-import React, { useState } from 'react';
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
-import * as ImagePicker from 'expo-image-picker';
-import { ImagePickerResult } from 'expo-image-picker';
 
-const AddDrink = () => {
-  const [flavorText, setFlavorText] = useState<string | null>(null);
-  const [price, setPrice] = useState<number | null>(null);
-  const [priceText, setPriceText] = useState<string>('');
-  const [store, setStore] = useState<string | null>(null);
-  const [occasion, setOccasion] = useState<string | null>(null);
-  const [rating, setSelectedRating] = useState<number | null>(null);
-  const [image, setImage] = useState<string | null>(null);
+interface DrinkForm {
+  flavor: string;
+  price: string;
+  store: string;
+  occasion: string;
+  rating: number | null;
+  image: string | null;
+}
+
+const INITIAL_FORM: DrinkForm = {
+  flavor: '',
+  price: '',
+  store: '',
+  occasion: '',
+  rating: null,
+  image: null,
+};
+
+const RATINGS = [
+  { value: 1, emoji: '😞' },
+  { value: 2, emoji: '😐' },
+  { value: 3, emoji: '🙂' },
+  { value: 4, emoji: '😊' },
+];
+
+const DEFAULT_IMAGE = require('../assets/boba.jpg');
+
+const AddDrink: React.FC = () => {
+  const [form, setForm] = useState<DrinkForm>(INITIAL_FORM);
+
+  const updateField = useCallback(<K extends keyof DrinkForm>(field: K, value: DrinkForm[K]) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }, []);
+
+  const validateForm = (): string | null => {
+    if (!form.flavor.trim()) return 'Please enter a flavor';
+    const numericPrice = parseFloat(form.price);
+    if (isNaN(numericPrice) || numericPrice <= 0) return 'Please enter a valid price';
+    if (!form.store.trim()) return 'Please enter store';
+    if (!form.occasion.trim()) return 'Please enter occasion';
+    if (form.rating === null) return 'Please select a rating';
+    if (!form.image) return 'Please select an image';
+    return null;
+  };
+
   const saveDrink = async () => {
-    if (!flavorText) {
-      alert('Please enter a flavor');
-      return;
-    }
-    const numericPrice = parseFloat(priceText);
-    if (isNaN(numericPrice)) {
-      alert('Please enter a valid price');
-      return;
-    }
-
-    if (!store) {
-      alert('Please enter store');
-      return;
-    }
-    if (!occasion) {
-      alert('Please enter occasion');
-      return;
-    }
-    if (rating === null) {
-      alert('Please select a rating');
-      return;
-    }
-    if (!image) {
-      alert('Please enter a image');
+    const error = validateForm();
+    if (error) {
+      Alert.alert('Validation Error', error);
       return;
     }
 
     try {
       await database.write(async () => {
-        const currentDate = new Date().toISOString().slice(0, 10);
-        await database.collections.get<Drink>('drinks').create(drink => {
-          drink.flavor = flavorText;
-          drink.price = numericPrice;
-          drink.store = store;
-          drink.occasion = occasion;
-          drink.rating = rating;
-          drink.date = currentDate;
-          drink.photoUrl = image;
+        await database.collections.get<Drink>('drinks').create((drink) => {
+          drink.flavor = form.flavor.trim();
+          drink.price = parseFloat(form.price);
+          drink.store = form.store.trim();
+          drink.occasion = form.occasion.trim();
+          drink.rating = form.rating!;
+          drink.date = new Date().toISOString().slice(0, 10);
+          drink.photoUrl = form.image!;
         });
       });
-      alert('Drink saved!');
-      // Reset fields after save
-      setFlavorText('');
-      setPriceText('')
-      setPrice(null);
-      setStore('');
-      setOccasion('');
-      setSelectedRating(null);
-      setImage(null);
+      Alert.alert('Success', 'Drink saved!');
+      setForm(INITIAL_FORM);
     } catch (error) {
       console.error('Failed to save drink:', error);
-      alert('Failed to save drink');
+      Alert.alert('Error', 'Failed to save drink');
     }
   };
 
   const pickImage = async () => {
-    let result: ImagePickerResult = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: [4,3],
+      aspect: [4, 3],
       quality: 1,
-    })
+    });
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri)
+    if (!result.canceled && result.assets[0]) {
+      updateField('image', result.assets[0].uri);
     }
-  }
+  };
+
+  const takePhoto = async () => {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permission Required', 'Camera permission is required');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      updateField('image', result.assets[0].uri);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* Image Placeholder */}
-
       <Image
-        source={image ? { uri: image } : require("../assets/boba.jpg")}
+        source={form.image ? { uri: form.image } : DEFAULT_IMAGE}
         style={styles.imagePlaceholder}
       />
 
-      {/* Photo Buttons */}
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.secondaryButton}>
+        <TouchableOpacity style={styles.secondaryButton} onPress={takePhoto}>
           <Text style={styles.secondaryButtonText}>Take Photo</Text>
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.primaryButton} onPress={pickImage}>
           <Text style={styles.primaryButtonText}>Choose Photo</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Flavor Input */}
-      <Text style={styles.label}>Flavor</Text>
-      <TextInput
-        style={styles.input}
+      <FormField
+        label="Flavor"
         placeholder="e.g. Strawberry Matcha Latte"
-        placeholderTextColor="#999"
-        onChangeText={setFlavorText}
-        value={flavorText || ''}
+        value={form.flavor}
+        onChangeText={(text) => updateField('flavor', text)}
       />
 
-      {/* Price Input */}
-      <Text style={styles.label}>Price</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="e.g. $00.00"
-        placeholderTextColor="#999"
-        keyboardType="numeric"
-        onChangeText={text => {
-          // Allow only digits and decimal point, basic validation
-          if (/^\d*\.?\d*$/.test(text)) {
-            setPriceText(text);
-          }
+      <FormField
+        label="Price"
+        placeholder="e.g. 5.99"
+        value={form.price}
+        onChangeText={(text) => {
+          if (/^\d*\.?\d*$/.test(text)) updateField('price', text);
         }}
-        value={priceText}
+        keyboardType="numeric"
       />
 
-      {/* Store Input */}
-      <Text style={styles.label}>Store</Text>
-      <TextInput
-        style={styles.input}
+      <FormField
+        label="Store"
         placeholder="e.g. Tsaocaa"
-        placeholderTextColor="#999"
-        onChangeText={setStore}
-        value={store || ''}
+        value={form.store}
+        onChangeText={(text) => updateField('store', text)}
       />
 
-      {/* Occasion Input */}
-      <Text style={styles.label}>What is the occasion?</Text>
-      <TextInput
-        style={styles.input}
+      <FormField
+        label="What is the occasion?"
         placeholder="e.g. Celebrating that I passed my exam!"
-        placeholderTextColor="#999"
-        onChangeText={setOccasion}
-        value={occasion || ''}
+        value={form.occasion}
+        onChangeText={(text) => updateField('occasion', text)}
       />
 
-      {/* Rating */}
       <Text style={styles.label}>Rating</Text>
       <View style={styles.ratingContainer}>
-        {[1, 2, 3, 4].map(value => (
+        {RATINGS.map(({ value, emoji }) => (
           <TouchableOpacity
             key={value}
-            onPress={() => setSelectedRating(value)}
-            style={[
-              styles.emojiButton,
-              rating === value && styles.selectedEmojiButton,  // conditional style
-            ]}
-          >
-            <Text style={styles.emoji}>
-              {value === 1 && '😞'}
-              {value === 2 && '😐'}
-              {value === 3 && '🙂'}
-              {value === 4 && '😊'}
-            </Text>
+            onPress={() => updateField('rating', value)}
+            style={[styles.emojiButton, form.rating === value && styles.selectedEmojiButton]}>
+            <Text style={styles.emoji}>{emoji}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* Submit Button */}
       <TouchableOpacity style={styles.submitButton} onPress={saveDrink}>
         <Text style={styles.submitButtonText}>Log My Boba!</Text>
       </TouchableOpacity>
@@ -178,26 +174,48 @@ const AddDrink = () => {
   );
 };
 
+interface FormFieldProps {
+  label: string;
+  placeholder: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  keyboardType?: 'default' | 'numeric';
+}
+
+const FormField: React.FC<FormFieldProps> = ({
+  label,
+  placeholder,
+  value,
+  onChangeText,
+  keyboardType = 'default',
+}) => (
+  <>
+    <Text style={styles.label}>{label}</Text>
+    <TextInput
+      style={styles.input}
+      placeholder={placeholder}
+      placeholderTextColor="#999"
+      value={value}
+      onChangeText={onChangeText}
+      keyboardType={keyboardType}
+    />
+  </>
+);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     backgroundColor: 'white',
     paddingHorizontal: 20,
-    paddingTop: 20
+    paddingTop: 20,
   },
   imagePlaceholder: {
     width: 100,
     height: 100,
-    borderRadius: 100,
+    borderRadius: 50,
     backgroundColor: '#f5f5f5',
-    justifyContent: 'center',
-    alignItems: 'center',
     marginBottom: 10,
-  },
-  placeholderText: {
-    color: '#ccc',
-    fontSize: 12,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -234,8 +252,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
     alignSelf: 'flex-start',
-    marginBottom: 0,
-    marginTop: 0,
+    marginTop: 8,
   },
   input: {
     width: '100%',
@@ -254,10 +271,14 @@ const styles = StyleSheet.create({
     marginVertical: 15,
   },
   emojiButton: {
-    padding: 5,
+    padding: 8,
+    borderRadius: 12,
   },
   emoji: {
     fontSize: 32,
+  },
+  selectedEmojiButton: {
+    backgroundColor: '#4A90E2',
   },
   submitButton: {
     backgroundColor: '#FF9800',
@@ -273,11 +294,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  selectedEmojiButton: {
-    backgroundColor: '#4A90E2',
-    borderRadius: 12,
-    padding: 5,
-  }
 });
 
 export default AddDrink;

@@ -1,54 +1,86 @@
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
+import { RootStackParamList } from '../App';
 
-// @ts-ignore
-const DrinkDetail = ({ route }) => {
+const RATINGS: Record<number, string> = {
+  1: '😞',
+  2: '😐',
+  3: '🙂',
+  4: '😊',
+};
+
+const DEFAULT_IMAGE = require('../assets/boba2.jpg');
+
+const DrinkDetail: React.FC = () => {
+  const route = useRoute<RouteProp<RootStackParamList, 'DrinkDetail'>>();
   const { drinkId } = route.params;
   const [drink, setDrink] = useState<Drink | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDrink = async () => {
-      const drinkItem = await database.collections.get<Drink>('drinks').find(drinkId);
-      setDrink(drinkItem);
+      try {
+        const drinkItem = await database.collections.get<Drink>('drinks').find(drinkId);
+        setDrink(drinkItem);
+      } catch (error) {
+        console.error('Failed to fetch drink:', error);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchDrink().then(r => r);
+    fetchDrink();
   }, [drinkId]);
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FF9800" />
+      </SafeAreaView>
+    );
+  }
+
   if (!drink) {
-    return <Text>Loading...</Text>;
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <Text>Drink not found</Text>
+      </SafeAreaView>
+    );
   }
 
   return (
-    <View style={styles.container}>
-      {/* Image Placeholder */}
+    <SafeAreaView style={styles.container}>
       <Image
-        source={drink.photoUrl ? { uri: drink.photoUrl } : require("../assets/boba2.jpg")}
+        source={drink.photoUrl ? { uri: drink.photoUrl } : DEFAULT_IMAGE}
         style={styles.image}
       />
 
-      {/* Flavor Input */}
-      <Text style={styles.label}>Flavor</Text>
-      <Text style={styles.input}>{drink.flavor}</Text>
+      <DetailRow label="Flavor" value={drink.flavor} />
+      <DetailRow label="Price" value={`$${drink.price.toFixed(2)}`} />
+      <DetailRow label="Store" value={drink.store} />
+      <DetailRow label="Occasion" value={drink.occasion} />
+      <DetailRow label="Date" value={drink.date} />
 
-      {/* Price Input */}
-      <Text style={styles.label}>Price</Text>
-      <Text style={styles.input}>${drink.price}</Text>
-
-      {/* Store Input */}
-      <Text style={styles.label}>Store</Text>
-      <Text style={styles.input}>{drink.store}</Text>
-
-      {/* Occasion Input */}
-      <Text style={styles.label}>Occasion</Text>
-      <Text style={styles.input}>{drink.occasion}</Text>
-
-      {/* Rating */}
       <Text style={styles.label}>Rating</Text>
-    </View>
+      <Text style={styles.ratingEmoji}>{RATINGS[drink.rating] || '—'}</Text>
+    </SafeAreaView>
   );
 };
+
+interface DetailRowProps {
+  label: string;
+  value: string;
+}
+
+const DetailRow: React.FC<DetailRowProps> = ({ label, value }) => (
+  <>
+    <Text style={styles.label}>{label}</Text>
+    <Text style={styles.value}>{value}</Text>
+  </>
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -56,60 +88,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     paddingHorizontal: 20,
-    paddingTop: 20
+    paddingTop: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
   },
   image: {
     width: 200,
     height: 200,
     borderRadius: 100,
     backgroundColor: '#f5f5f5',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  placeholderText: {
-    color: '#ccc',
-    fontSize: 12,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: 10,
     marginBottom: 20,
-  },
-  primaryButton: {
-    backgroundColor: 'white',
-    borderWidth: 2,
-    borderColor: '#4A90E2',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-  },
-  primaryButtonText: {
-    color: '#4A90E2',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  secondaryButton: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-  },
-  secondaryButtonText: {
-    color: '#666',
-    fontSize: 16,
   },
   label: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
     alignSelf: 'flex-start',
-    marginBottom: 0,
-    marginTop: 0,
+    marginTop: 8,
   },
-  input: {
+  value: {
     width: '100%',
     borderWidth: 1,
     borderColor: '#ddd',
@@ -117,19 +118,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 15,
     fontSize: 15,
-    backgroundColor: 'white',
+    backgroundColor: '#f9f9f9',
     marginBottom: 5,
+    color: '#333',
   },
-  ratingContainer: {
-    flexDirection: 'row',
-    gap: 15,
-    marginVertical: 15,
-  },
-  emojiButton: {
-    padding: 5,
-  },
-  emoji: {
-    fontSize: 32,
+  ratingEmoji: {
+    fontSize: 48,
+    marginTop: 10,
   },
 });
+
 export default DrinkDetail;

@@ -1,69 +1,69 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import MyDrinkCard from '../components/MyDrinkCard';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import database from '../database/index.native';
-import Drink from '../database/model/Drink';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import database from '../database/index.native';
+import Drink from '../database/model/Drink';
+import MyDrinkCard from '../components/MyDrinkCard';
+import { RootStackParamList } from '../App';
 
-const Gallery = () => {
+const Gallery: React.FC = () => {
   const [drinks, setDrinks] = useState<Drink[]>([]);
-  const fetchDrinks = async () => {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
+  const fetchDrinks = useCallback(async () => {
     try {
-      const drinksCollection = database.collections.get<Drink>('drinks');
-      const allDrinks = await drinksCollection.query().fetch();
+      const allDrinks = await database.collections.get<Drink>('drinks').query().fetch();
       setDrinks(allDrinks);
     } catch (error) {
       console.error('Failed to fetch drinks:', error);
     }
-  };
-
-  // Refetch when screen is focused
-  useFocusEffect(
-    useCallback(() => {
-      fetchDrinks().then(r => r);
-    }, [])
-  );
-
-  // Refetch every second
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchDrinks().then(r => r);
-    }, 1000);
-    return () => clearInterval(interval);
   }, []);
 
-  type RootStackParamList = {
-    DrinkDetail: { drinkId: string };
-  };
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const renderItem = ({ item }: { item: Drink }) =>{
-    return (
-      <TouchableOpacity onPress={() => navigation.navigate('DrinkDetail', { drinkId: item.id })}>
+  useFocusEffect(
+    useCallback(() => {
+      fetchDrinks();
+    }, [fetchDrinks])
+  );
+
+  const handleDrinkPress = useCallback(
+    (drinkId: string) => {
+      navigation.navigate('DrinkDetail', { drinkId });
+    },
+    [navigation]
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: Drink }) => (
+      <TouchableOpacity onPress={() => handleDrinkPress(item.id)}>
         <MyDrinkCard title={item.flavor} date={item.date} image={item.photoUrl} />
       </TouchableOpacity>
-    );
-  };
+    ),
+    [handleDrinkPress]
+  );
+
+  const keyExtractor = useCallback((item: Drink) => item.id, []);
 
   if (drinks.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Your Boba stats</Text>
-        <Text>Add more boba to see your stats</Text>
+      <SafeAreaView style={styles.emptyContainer}>
+        <Text style={styles.emptyTitle}>Your Boba Gallery</Text>
+        <Text style={styles.emptyText}>Add some boba to see your collection!</Text>
       </SafeAreaView>
     );
   }
 
   return (
     <View style={styles.container}>
-      <FlatList<Drink>
+      <FlatList
         data={drinks}
         renderItem={renderItem}
+        keyExtractor={keyExtractor}
         numColumns={2}
-        keyExtractor={item => item.id}
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
@@ -73,13 +73,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 15,
-    paddingTop: 50
+    paddingTop: 50,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
   },
   row: {
     justifyContent: 'space-between',
   },
   list: {
-    paddingBottom: 20,
+    paddingBottom: 100,
   },
 });
 

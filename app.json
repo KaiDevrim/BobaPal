@@ -6,6 +6,9 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "expo": {
+      "scheme": "buhba"
+    },
     "experiments": {
       "tsconfigPaths": true
     },

@@ -1,45 +1,51 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
-// @ts-ignore
-export default function BottomBar({ currentTab, setCurrentTab }) {
+type TabConfig = {
+  name: string;
+  icon: keyof typeof AntDesign.glyphMap;
+  label: string;
+};
+
+const TABS: TabConfig[] = [
+  { name: 'Gallery', icon: 'home', label: 'Home' },
+  { name: 'AddDrink', icon: 'plus-circle', label: 'Add Boba' },
+  { name: 'Stats', icon: 'line-chart', label: 'Stats' },
+];
+
+const BottomBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
+  const currentTab = state.routes[state.index].name;
+
   return (
     <View style={styles.bottomBar}>
-      <TouchableOpacity onPress={() => setCurrentTab('Gallery')}>
-        <View style={styles.tabItem}>
-          <AntDesign style={styles.icon} name="home" size={22} color={currentTab === 'Gallery' ? 'orange' : 'white'} />
-          <Text style={{ color: currentTab === 'Gallery' ? 'orange' : 'white' }} className="text-sm" >Home</Text>
-        </View>
-      </TouchableOpacity>
+      {TABS.map((tab) => {
+        const isActive = currentTab === tab.name;
+        const color = isActive ? '#FF9800' : 'white';
 
-      <TouchableOpacity onPress={() => setCurrentTab('AddDrink')}>
-        <View style={styles.tabItem}>
-          <AntDesign style={styles.icon} name="plus-circle" size={22} color={currentTab === 'AddDrink' ? 'orange' : 'white'} />
-          <Text style={{ color: currentTab === 'AddDrink' ? 'orange' : 'white' }}>Add Boba</Text>
-        </View>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => setCurrentTab('Stats')}>
-        <View style={styles.tabItem}>
-          <AntDesign style={styles.icon} name="line-chart" size={22} color={currentTab === 'Stats' ? 'orange' : 'white'} />
-          <Text style={{ color: currentTab === 'Stats' ? 'orange' : 'white' }}>Stats</Text>
-        </View>
-      </TouchableOpacity>
+        return (
+          <TouchableOpacity
+            key={tab.name}
+            onPress={() => navigation.navigate(tab.name)}
+            style={styles.tabItem}>
+            <AntDesign name={tab.icon} size={22} color={color} style={styles.icon} />
+            <Text style={[styles.label, { color }]}>{tab.label}</Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   bottomBar: {
-    fontSize: 16,
-    display: 'flex',
     flexDirection: 'row',
     position: 'absolute',
     bottom: 0,
     left: 20,
     right: 20,
-    backgroundColor: "#583B39",
+    backgroundColor: '#583B39',
     borderRadius: 20,
     height: 70,
     paddingHorizontal: 10,
@@ -49,17 +55,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
-
   tabItem: {
-    fontSize: 16,
-    display: 'flex',
-    marginHorizontal: 32,
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-
   icon: {
-    paddingVertical: 10,
-  }
+    marginBottom: 4,
+  },
+  label: {
+    fontSize: 12,
+  },
 });
+
+export default BottomBar;
