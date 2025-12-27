@@ -10,6 +10,7 @@ import { DatabaseProvider } from '@nozbe/watermelondb/react';
 import database from './database/index.native';
 import { createStackNavigator } from '@react-navigation/stack';
 import DrinkDetail from './pages/DrinkDetail';
+import { Authenticator } from '@aws-amplify/ui-react-native';
 
 const TABS = {
   Gallery: Gallery,
@@ -17,7 +18,7 @@ const TABS = {
   Stats: Stats,
 };
 const Stack = createStackNavigator();
-export default function App() {
+function AuthenticatedApp() {
   return (
     <DatabaseProvider database={database}>
       <SafeAreaProvider>
@@ -31,6 +32,16 @@ export default function App() {
         </SafeAreaView>
       </SafeAreaProvider>
     </DatabaseProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <Authenticator.Provider>
+      <Authenticator>
+        <AuthenticatedApp />
+      </Authenticator>
+    </Authenticator.Provider>
   );
 }
 
