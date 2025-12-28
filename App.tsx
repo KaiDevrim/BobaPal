@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -16,6 +16,8 @@ import Gallery from './pages/Gallery';
 import AddDrink from './pages/AddDrink';
 import Stats from './pages/Stats';
 import DrinkDetail from './pages/DrinkDetail';
+import { syncFromCloud } from './services/syncService';
+import { useCurrentUser } from './hooks/useCurrentUser';
 
 Amplify.configure(amplifyConfig);
 
@@ -43,18 +45,28 @@ const MainTabs: React.FC = () => (
   </Tab.Navigator>
 );
 
-const AuthenticatedApp: React.FC = () => (
-  <DatabaseProvider database={database}>
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="MainTabs" component={MainTabs} />
-          <Stack.Screen name="DrinkDetail" component={DrinkDetail} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
-  </DatabaseProvider>
-);
+const AuthenticatedApp: React.FC = () => {
+  const { user } = useCurrentUser();
+
+  useEffect(() => {
+    if (user) {
+      syncFromCloud().catch(console.error);
+    }
+  }, [user]);
+
+  return (
+    <DatabaseProvider database={database}>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="MainTabs" component={MainTabs} />
+            <Stack.Screen name="DrinkDetail" component={DrinkDetail} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </DatabaseProvider>
+  );
+};
 
 const CustomSignIn: React.FC = () => {
   const handleGoogleSignIn = () => {

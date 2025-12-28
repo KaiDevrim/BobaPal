@@ -1,9 +1,21 @@
 import React, { useState, useCallback } from 'react';
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
+import { uploadImage } from '../services/storageService';
+import { syncToCloud } from '../services/syncService';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 
 interface DrinkForm {
   flavor: string;
@@ -11,7 +23,7 @@ interface DrinkForm {
   store: string;
   occasion: string;
   rating: number | null;
-  image: string | null;
+  imageUri: string | null;
 }
 
 const INITIAL_FORM: DrinkForm = {
@@ -20,7 +32,7 @@ const INITIAL_FORM: DrinkForm = {
   store: '',
   occasion: '',
   rating: null,
-  image: null,
+  imageUri: null,
 };
 
 const RATINGS = [
@@ -34,6 +46,8 @@ const DEFAULT_IMAGE = require('../assets/boba.jpg');
 
 const AddDrink: React.FC = () => {
   const [form, setForm] = useState<DrinkForm>(INITIAL_FORM);
+  const [saving, setSaving] = useState(false);
+  const { user } = useCurrentUser();
 
   const updateField = useCallback(<K extends keyof DrinkForm>(field: K, value: DrinkForm[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -46,7 +60,7 @@ const AddDrink: React.FC = () => {
     if (!form.store.trim()) return 'Please enter store';
     if (!form.occasion.trim()) return 'Please enter occasion';
     if (form.rating === null) return 'Please select a rating';
-    if (!form.image) return 'Please select an image';
+    if (!form.imageUri) return 'Please select an image';
     return null;
   };
 
@@ -57,7 +71,17 @@ const AddDrink: React.FC = () => {
       return;
     }
 
+    if (!user) {
+      Alert.alert('Error', 'Not authenticated');
+      return;
+    }
+
+    setSaving(true);
+
     try {
+      const fileName = `drink_${Date.now()}.jpg`;
+      const { s3Key, url } = await uploadImage(form.imageUri!, fileName);
+
       await database.write(async () => {
         await database.collections.get<Drink>('drinks').create((drink) => {
           drink.flavor = form.flavor.trim();
@@ -66,17 +90,24 @@ const AddDrink: React.FC = () => {
           drink.occasion = form.occasion.trim();
           drink.rating = form.rating!;
           drink.date = new Date().toISOString().slice(0, 10);
-          drink.photoUrl = form.image!;
+          drink.photoUrl = url;
+          drink.s3Key = s3Key;
+          drink.userId = user.identityId;
+          drink.synced = false;
+          drink.lastModified = new Date();
         });
       });
-      Alert.alert('Success', 'Drink saved!');
+
+      await syncToCloud();
+      Alert.alert('Success', 'Your boba drink has been logged!');
       setForm(INITIAL_FORM);
-    } catch (error) {
-      console.error('Failed to save drink:', error);
-      Alert.alert('Error', 'Failed to save drink');
+    } catch (e) {
+      console.error('Error saving drink:', e);
+      Alert.alert('Error', 'Failed to save drink. Please try again.');
+    } finally {
+      setSaving(false);
     }
   };
-
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
@@ -86,7 +117,7 @@ const AddDrink: React.FC = () => {
     });
 
     if (!result.canceled && result.assets[0]) {
-      updateField('image', result.assets[0].uri);
+      updateField('imageUri', result.assets[0].uri);
     }
   };
 
@@ -104,14 +135,14 @@ const AddDrink: React.FC = () => {
     });
 
     if (!result.canceled && result.assets[0]) {
-      updateField('image', result.assets[0].uri);
+      updateField('imageUri', result.assets[0].uri);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <Image
-        source={form.image ? { uri: form.image } : DEFAULT_IMAGE}
+        source={form.imageUri ? { uri: form.imageUri } : DEFAULT_IMAGE}
         style={styles.imagePlaceholder}
       />
 
@@ -167,8 +198,15 @@ const AddDrink: React.FC = () => {
         ))}
       </View>
 
-      <TouchableOpacity style={styles.submitButton} onPress={saveDrink}>
-        <Text style={styles.submitButtonText}>Log My Boba!</Text>
+      <TouchableOpacity
+        style={[styles.submitButton, saving && { opacity: 0.7 }]}
+        onPress={saveDrink}
+        disabled={saving}>
+        {saving ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={styles.submitButtonText}>Log My Boba!</Text>
+        )}
       </TouchableOpacity>
     </SafeAreaView>
   );

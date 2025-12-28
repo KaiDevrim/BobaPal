@@ -11,33 +11,43 @@ export const uploadImage = async (
   fileName: string
 ): Promise<{ s3Key: string; url: string }> => {
   const identityId = await getIdentityId();
-  const s3Key = `private/${identityId}/drinks/${Date.now()}_${fileName}`;
+  const s3Key = `drinks/${Date.now()}_${fileName}`;
 
   const response = await fetch(uri);
   const blob = await response.blob();
 
-  await uploadData({
-    key: s3Key,
+  const uploadOperation = uploadData({
+    path: `private/${identityId}/${s3Key}`,
     data: blob,
     options: {
       contentType: 'image/jpeg',
-      accessLevel: 'private',
     },
   });
 
-  const urlResult = await getUrl({ key: s3Key, options: { accessLevel: 'private' } });
+  await uploadOperation.result;
+
+  const urlResult = await getUrl({
+    path: `private/${identityId}/${s3Key}`,
+  });
 
   return { s3Key, url: urlResult.url.toString() };
 };
 
 export const getImageUrl = async (s3Key: string): Promise<string> => {
+  const identityId = await getIdentityId();
+
   const result = await getUrl({
-    key: s3Key,
-    options: { accessLevel: 'private', expiresIn: 3600 },
+    path: `private/${identityId}/${s3Key}`,
+    options: { expiresIn: 3600 },
   });
+
   return result.url.toString();
 };
 
 export const deleteImage = async (s3Key: string): Promise<void> => {
-  await remove({ key: s3Key, options: { accessLevel: 'private' } });
+  const identityId = await getIdentityId();
+
+  await remove({
+    path: `private/${identityId}/${s3Key}`,
+  });
 };
