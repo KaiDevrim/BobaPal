@@ -17,7 +17,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.buhba",
+      "bundleIdentifier": "tech.devrim.buhba",
       "buildNumber": "1",
       "infoPlist": {
         "NSCameraUsageDescription": "Buhba needs camera access to take photos of your boba drinks.",
@@ -25,7 +25,7 @@
         "CFBundleAllowMixedLocalizations": true
       },
       "associatedDomains": [
-        "applinks:buhba.yourcompany.com"
+        "applinks:buhba.devrim.tech"
       ],
       "config": {
         "usesNonExemptEncryption": false
@@ -36,7 +36,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFF8F0"
       },
-      "package": "com.yourcompany.buhba",
+      "package": "tech.devrim.buhba",
       "versionCode": 1,
       "permissions": [
         "CAMERA",
@@ -53,11 +53,14 @@
             },
             {
               "scheme": "https",
-              "host": "buhba.yourcompany.com",
+              "host": "buhba.devrim.tech",
               "pathPrefix": "/"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -75,7 +78,10 @@
             "extraPods": [
               {
                 "name": "simdjson",
-                "configurations": ["Debug", "Release"],
+                "configurations": [
+                  "Debug",
+                  "Release"
+                ],
                 "path": "../node_modules/@nozbe/simdjson",
                 "modular_headers": true
               }
@@ -84,17 +90,14 @@
         }
       ]
     ],
-    "extra": {
-      "eas": {
-        "projectId": "your-eas-project-id"
-      }
-    },
-    "owner": "your-expo-username",
     "runtimeVersion": {
       "policy": "sdkVersion"
     },
-    "updates": {
-      "url": "https://u.expo.dev/your-eas-project-id"
-    }
+    "extra": {
+      "eas": {
+        "projectId": "caa3e7d5-67e3-4334-8132-87bfe37c831b"
+      }
+    },
+    "owner": "kaidevrim"
   }
 }
