@@ -4,9 +4,7 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     },
     "target": "es2017",
     "module": "esnext",
@@ -16,13 +14,6 @@
     "emitDecoratorMetadata": false,
     "skipLibCheck": true
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "src/**/*.json",
-    "nativewind-env.d.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "src/**/*.json", "nativewind-env.d.ts"],
+  "exclude": ["node_modules"]
 }

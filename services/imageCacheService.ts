@@ -50,9 +50,7 @@ export const prefetchImages = async (s3Keys: (string | null)[]): Promise<void> =
   const validKeys = s3Keys.filter((key): key is string => key !== null);
 
   // Get URLs in parallel
-  const urls = await Promise.all(
-    validKeys.map(key => getCachedImageUrl(key))
-  );
+  const urls = await Promise.all(validKeys.map((key) => getCachedImageUrl(key)));
 
   // Prefetch images using expo-image
   const validUrls = urls.filter((url): url is string => url !== null);
@@ -102,4 +100,3 @@ export const cleanExpiredCache = (): number => {
 
   return cleaned;
 };
-

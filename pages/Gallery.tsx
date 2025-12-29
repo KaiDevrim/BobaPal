@@ -19,7 +19,7 @@ const Gallery: React.FC = () => {
       setDrinks(allDrinks);
 
       // Prefetch first 10 images for faster initial load
-      const s3Keys = allDrinks.slice(0, 10).map(d => d.s3Key);
+      const s3Keys = allDrinks.slice(0, 10).map((d) => d.s3Key);
       prefetchImages(s3Keys).catch(console.error);
     } catch (error) {
       console.error('Failed to fetch drinks:', error);

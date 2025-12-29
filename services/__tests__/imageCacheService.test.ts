@@ -1,4 +1,10 @@
-import { getCachedImageUrl, clearImageCache, removeFromCache, getCacheStats, cleanExpiredCache } from '../imageCacheService';
+import {
+  getCachedImageUrl,
+  clearImageCache,
+  removeFromCache,
+  getCacheStats,
+  cleanExpiredCache,
+} from '../imageCacheService';
 
 // Mock the storage service
 jest.mock('../storageService', () => ({
