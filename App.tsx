@@ -17,6 +17,7 @@ import Gallery from './pages/Gallery';
 import AddDrink from './pages/AddDrink';
 import Stats from './pages/Stats';
 import DrinkDetail from './pages/DrinkDetail';
+import EditDrink from './pages/EditDrink';
 import { syncFromCloud } from './services/syncService';
 import { useCurrentUser } from './hooks/useCurrentUser';
 
@@ -55,6 +56,7 @@ const AuthenticatedApp: React.FC = () => {
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="MainTabs" component={MainTabs} />
             <Stack.Screen name="DrinkDetail" component={DrinkDetail} />
+            <Stack.Screen name="EditDrink" component={EditDrink} />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>

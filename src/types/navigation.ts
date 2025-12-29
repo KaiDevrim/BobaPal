@@ -1,6 +1,7 @@
 export type RootStackParamList = {
   MainTabs: undefined;
   DrinkDetail: { drinkId: string };
+  EditDrink: { drinkId: string };
 };
 
 export type TabParamList = {

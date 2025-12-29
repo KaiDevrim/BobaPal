@@ -1,13 +1,14 @@
 import React, { useEffect, useState, memo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
 import { RootStackParamList } from '../src/types/navigation';
 import { useS3Image } from '../hooks/useS3Image';
-import { LoadingState, DetailRow } from '../components';
+import { LoadingState, DetailRow, Button } from '../components';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
 import { RATING_EMOJIS } from '../src/constants';
 
@@ -16,6 +17,7 @@ const PLACEHOLDER_BLURHASH = 'L6PZfSi_.AyE_3t7t7R**0LMD%s:';
 
 const DrinkDetail: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'DrinkDetail'>>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { drinkId } = route.params;
   const [drink, setDrink] = useState<Drink | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,6 +37,10 @@ const DrinkDetail: React.FC = () => {
     };
     fetchDrink();
   }, [drinkId]);
+
+  const handleEdit = () => {
+    navigation.navigate('EditDrink', { drinkId });
+  };
 
   if (loading) {
     return <LoadingState />;
@@ -69,6 +75,13 @@ const DrinkDetail: React.FC = () => {
 
       <Text style={styles.label}>Rating</Text>
       <Text style={styles.ratingEmoji}>{RATING_EMOJIS[drink.rating] || '—'}</Text>
+
+      <Button
+        title="Edit Drink"
+        onPress={handleEdit}
+        variant="secondary"
+        style={styles.editButton}
+      />
     </SafeAreaView>
   );
 };
@@ -112,6 +125,10 @@ const styles = StyleSheet.create({
   ratingEmoji: {
     fontSize: FONT_SIZES.title,
     marginTop: SPACING.sm,
+  },
+  editButton: {
+    marginTop: SPACING.xxl,
+    width: '100%',
   },
 });
 

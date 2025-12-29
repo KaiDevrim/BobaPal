@@ -13,10 +13,12 @@ describe('Type exports', () => {
       const routes: RootStackParamList = {
         MainTabs: undefined,
         DrinkDetail: { drinkId: 'test-id' },
+        EditDrink: { drinkId: 'test-id' },
       };
 
       expect(routes.MainTabs).toBeUndefined();
       expect(routes.DrinkDetail.drinkId).toBe('test-id');
+      expect(routes.EditDrink.drinkId).toBe('test-id');
     });
 
     it('TabParamList has correct shape', () => {
