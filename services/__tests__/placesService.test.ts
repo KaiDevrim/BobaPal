@@ -1,45 +1,42 @@
 // Mock fetch globally
 global.fetch = jest.fn();
 
-// Store original env
-const originalEnv = process.env;
+// Create a mock for the API key
+let mockApiKey = '';
+
+jest.mock('../../src/config/secrets', () => ({
+  getGooglePlacesApiKey: () => mockApiKey,
+}));
+
+// Import after mocking
+import { searchBobaPlaces, getPlaceDetails, searchNearbyBobaPlaces } from '../placesService';
 
 describe('placesService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.resetModules();
-    process.env = { ...originalEnv };
-  });
-
-  afterAll(() => {
-    process.env = originalEnv;
+    mockApiKey = '';
   });
 
   describe('searchBobaPlaces', () => {
     it('returns empty array for short queries', async () => {
-      const { searchBobaPlaces } = require('../placesService');
       const result = await searchBobaPlaces('a', null);
       expect(result).toEqual([]);
       expect(global.fetch).not.toHaveBeenCalled();
     });
 
     it('returns empty array when no API key', async () => {
-      process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = '';
-      const { searchBobaPlaces } = require('../placesService');
+      mockApiKey = '';
       const result = await searchBobaPlaces('boba tea', null);
       expect(result).toEqual([]);
     });
 
     it('returns empty array for empty query', async () => {
-      const { searchBobaPlaces } = require('../placesService');
       const result = await searchBobaPlaces('', null);
       expect(result).toEqual([]);
     });
 
     it('makes API call with location when provided', async () => {
-      process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = 'test-key';
-      jest.resetModules();
-      const { searchBobaPlaces } = require('../placesService');
+      mockApiKey = 'test-key';
 
       (global.fetch as jest.Mock).mockResolvedValue({
         json: () =>
@@ -66,9 +63,7 @@ describe('placesService', () => {
     });
 
     it('handles API errors gracefully', async () => {
-      process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = 'test-key';
-      jest.resetModules();
-      const { searchBobaPlaces } = require('../placesService');
+      mockApiKey = 'test-key';
 
       (global.fetch as jest.Mock).mockResolvedValue({
         json: () =>
@@ -83,9 +78,7 @@ describe('placesService', () => {
     });
 
     it('handles ZERO_RESULTS status', async () => {
-      process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = 'test-key';
-      jest.resetModules();
-      const { searchBobaPlaces } = require('../placesService');
+      mockApiKey = 'test-key';
 
       (global.fetch as jest.Mock).mockResolvedValue({
         json: () =>
@@ -100,9 +93,7 @@ describe('placesService', () => {
     });
 
     it('handles fetch errors', async () => {
-      process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = 'test-key';
-      jest.resetModules();
-      const { searchBobaPlaces } = require('../placesService');
+      mockApiKey = 'test-key';
 
       (global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
 
@@ -113,17 +104,13 @@ describe('placesService', () => {
 
   describe('getPlaceDetails', () => {
     it('returns null when no API key', async () => {
-      process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = '';
-      jest.resetModules();
-      const { getPlaceDetails } = require('../placesService');
+      mockApiKey = '';
       const result = await getPlaceDetails('place123');
       expect(result).toBeNull();
     });
 
     it('returns place details on success', async () => {
-      process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = 'test-key';
-      jest.resetModules();
-      const { getPlaceDetails } = require('../placesService');
+      mockApiKey = 'test-key';
 
       (global.fetch as jest.Mock).mockResolvedValue({
         json: () =>
@@ -154,9 +141,7 @@ describe('placesService', () => {
     });
 
     it('returns null on API error', async () => {
-      process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = 'test-key';
-      jest.resetModules();
-      const { getPlaceDetails } = require('../placesService');
+      mockApiKey = 'test-key';
 
       (global.fetch as jest.Mock).mockResolvedValue({
         json: () =>
@@ -172,17 +157,13 @@ describe('placesService', () => {
 
   describe('searchNearbyBobaPlaces', () => {
     it('returns empty array when no API key', async () => {
-      process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = '';
-      jest.resetModules();
-      const { searchNearbyBobaPlaces } = require('../placesService');
+      mockApiKey = '';
       const result = await searchNearbyBobaPlaces({ latitude: 37.77, longitude: -122.41 });
       expect(result).toEqual([]);
     });
 
     it('returns nearby places on success', async () => {
-      process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = 'test-key';
-      jest.resetModules();
-      const { searchNearbyBobaPlaces } = require('../placesService');
+      mockApiKey = 'test-key';
 
       (global.fetch as jest.Mock).mockResolvedValue({
         json: () =>
@@ -211,9 +192,7 @@ describe('placesService', () => {
     });
 
     it('limits results to 10', async () => {
-      process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = 'test-key';
-      jest.resetModules();
-      const { searchNearbyBobaPlaces } = require('../placesService');
+      mockApiKey = 'test-key';
 
       const manyResults = Array.from({ length: 20 }, (_, i) => ({
         place_id: `place${i}`,
@@ -231,8 +210,7 @@ describe('placesService', () => {
 
       const result = await searchNearbyBobaPlaces({ latitude: 37.77, longitude: -122.41 });
 
-      // Should limit to 10 even if API returns more
-      expect(result.length).toBeLessThanOrEqual(10);
+      expect(result).toHaveLength(10);
     });
   });
 });

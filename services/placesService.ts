@@ -1,4 +1,5 @@
 import { Coordinates } from './locationService';
+import { getGooglePlacesApiKey } from '../src/config/secrets';
 
 export interface PlacePrediction {
   placeId: string;
@@ -15,10 +16,6 @@ export interface PlaceDetails {
   longitude: number;
 }
 
-// You'll need to add your Google Places API key
-// For production, store this in environment variables
-const GOOGLE_PLACES_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY || '';
-
 /**
  * Search for boba/bubble tea places near a location
  */
@@ -30,14 +27,14 @@ export const searchBobaPlaces = async (
     return [];
   }
 
-  // If no API key, return empty results
-  if (!GOOGLE_PLACES_API_KEY) {
+  const apiKey = getGooglePlacesApiKey();
+  if (!apiKey) {
     console.warn('Google Places API key not configured');
     return [];
   }
 
   try {
-    let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query)}&types=establishment&key=${GOOGLE_PLACES_API_KEY}`;
+    let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query)}&types=establishment&key=${apiKey}`;
 
     // Add location bias if available
     if (location) {
@@ -73,12 +70,13 @@ export const searchBobaPlaces = async (
  * Get details for a specific place
  */
 export const getPlaceDetails = async (placeId: string): Promise<PlaceDetails | null> => {
-  if (!GOOGLE_PLACES_API_KEY) {
+  const apiKey = getGooglePlacesApiKey();
+  if (!apiKey) {
     return null;
   }
 
   try {
-    const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,geometry&key=${GOOGLE_PLACES_API_KEY}`;
+    const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,geometry&key=${apiKey}`;
 
     const response = await fetch(url);
     const data = await response.json();
@@ -108,12 +106,13 @@ export const getPlaceDetails = async (placeId: string): Promise<PlaceDetails | n
 export const searchNearbyBobaPlaces = async (
   location: Coordinates
 ): Promise<PlacePrediction[]> => {
-  if (!GOOGLE_PLACES_API_KEY) {
+  const apiKey = getGooglePlacesApiKey();
+  if (!apiKey) {
     return [];
   }
 
   try {
-    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.latitude},${location.longitude}&radius=5000&keyword=boba|bubble tea|milk tea&type=cafe&key=${GOOGLE_PLACES_API_KEY}`;
+    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.latitude},${location.longitude}&radius=5000&keyword=boba|bubble tea|milk tea&type=cafe&key=${apiKey}`;
 
     const response = await fetch(url);
     const data = await response.json();
