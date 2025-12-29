@@ -1,8 +1,15 @@
-import { getCachedImageUrl, clearImageCache, removeFromCache } from '../imageCacheService';
+import { getCachedImageUrl, clearImageCache, removeFromCache, getCacheStats, cleanExpiredCache } from '../imageCacheService';
 
 // Mock the storage service
 jest.mock('../storageService', () => ({
   getImageUrl: jest.fn(),
+}));
+
+// Mock expo-image
+jest.mock('expo-image', () => ({
+  Image: {
+    prefetch: jest.fn(() => Promise.resolve()),
+  },
 }));
 
 import { getImageUrl } from '../storageService';
@@ -92,6 +99,25 @@ describe('imageCacheService', () => {
     it('returns false when key does not exist', () => {
       const removed = removeFromCache('non-existent-key');
       expect(removed).toBe(false);
+    });
+  });
+
+  describe('getCacheStats', () => {
+    it('returns cache statistics', async () => {
+      const mockUrl = 'https://example.com/image.jpg';
+      (getImageUrl as jest.Mock).mockResolvedValue(mockUrl);
+
+      // First call - miss
+      await getCachedImageUrl('test-key');
+
+      // Second call - hit
+      await getCachedImageUrl('test-key');
+
+      const stats = getCacheStats();
+
+      expect(stats.hits).toBe(1);
+      expect(stats.misses).toBe(1);
+      expect(stats.size).toBe(1);
     });
   });
 });

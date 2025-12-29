@@ -1,5 +1,6 @@
 import React, { useEffect, useState, memo } from 'react';
-import { Image, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import database from '../database/index.native';
@@ -8,7 +9,10 @@ import { RootStackParamList } from '../src/types/navigation';
 import { useS3Image } from '../hooks/useS3Image';
 import { LoadingState, DetailRow } from '../components';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
-import { RATING_EMOJIS, DEFAULT_IMAGES } from '../src/constants';
+import { RATING_EMOJIS } from '../src/constants';
+
+// Placeholder blur hash for loading state
+const PLACEHOLDER_BLURHASH = 'L6PZfSi_.AyE_3t7t7R**0LMD%s:';
 
 const DrinkDetail: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'DrinkDetail'>>();
@@ -16,7 +20,7 @@ const DrinkDetail: React.FC = () => {
   const [drink, setDrink] = useState<Drink | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const { imageUrl, loading: imageLoading } = useS3Image(drink?.s3Key ?? null);
+  const { imageUrl } = useS3Image(drink?.s3Key ?? null);
 
   useEffect(() => {
     const fetchDrink = async () => {
@@ -47,14 +51,14 @@ const DrinkDetail: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.imageContainer}>
-        {imageLoading ? (
-          <ActivityIndicator size="small" color={COLORS.primary} />
-        ) : (
-          <Image
-            source={imageUrl ? { uri: imageUrl } : DEFAULT_IMAGES.boba2}
-            style={styles.image}
-          />
-        )}
+        <Image
+          source={imageUrl ? { uri: imageUrl } : require('../assets/boba2.jpg')}
+          style={styles.image}
+          placeholder={{ blurhash: PLACEHOLDER_BLURHASH }}
+          contentFit="cover"
+          transition={300}
+          cachePolicy="disk"
+        />
       </View>
 
       <DetailRow label="Flavor" value={drink.flavor} />

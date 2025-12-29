@@ -1,4 +1,4 @@
-import React, { useCallback, useState, memo } from 'react';
+import React, { useCallback, useState, useEffect, memo } from 'react';
 import { View, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -7,6 +7,7 @@ import Drink from '../database/model/Drink';
 import { MyDrinkCard, EmptyState } from '../components';
 import { RootStackParamList } from '../src/types/navigation';
 import { SPACING } from '../src/constants/theme';
+import { prefetchImages } from '../services/imageCacheService';
 
 const Gallery: React.FC = () => {
   const [drinks, setDrinks] = useState<Drink[]>([]);
@@ -16,6 +17,10 @@ const Gallery: React.FC = () => {
     try {
       const allDrinks = await database.collections.get<Drink>('drinks').query().fetch();
       setDrinks(allDrinks);
+
+      // Prefetch first 10 images for faster initial load
+      const s3Keys = allDrinks.slice(0, 10).map(d => d.s3Key);
+      prefetchImages(s3Keys).catch(console.error);
     } catch (error) {
       console.error('Failed to fetch drinks:', error);
     }
@@ -62,6 +67,7 @@ const Gallery: React.FC = () => {
         removeClippedSubviews
         maxToRenderPerBatch={10}
         windowSize={5}
+        initialNumToRender={6}
       />
     </View>
   );

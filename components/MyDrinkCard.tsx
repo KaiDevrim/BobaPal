@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
-import { View, Text, Image, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { useS3Image } from '../hooks/useS3Image';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS, SHADOWS } from '../src/constants/theme';
-import { DEFAULT_IMAGES } from '../src/constants';
 
 interface MyDrinkCardProps {
   title: string;
@@ -10,17 +10,23 @@ interface MyDrinkCardProps {
   s3Key: string | null;
 }
 
+// Placeholder blur hash for boba-colored loading state
+const PLACEHOLDER_BLURHASH = 'L6PZfSi_.AyE_3t7t7R**0LMD%s:';
+
 const MyDrinkCard: React.FC<MyDrinkCardProps> = memo(({ title, date, s3Key }) => {
   const { imageUrl, loading } = useS3Image(s3Key);
 
   return (
     <View style={styles.card}>
       <View style={styles.imageContainer}>
-        {loading ? (
-          <ActivityIndicator size="small" color={COLORS.primary} />
-        ) : (
-          <Image source={imageUrl ? { uri: imageUrl } : DEFAULT_IMAGES.boba} style={styles.image} />
-        )}
+        <Image
+          source={imageUrl ? { uri: imageUrl } : require('../assets/boba.jpg')}
+          style={styles.image}
+          placeholder={{ blurhash: PLACEHOLDER_BLURHASH }}
+          contentFit="cover"
+          transition={200}
+          cachePolicy="disk"
+        />
       </View>
       <View style={styles.textContainer}>
         <Text style={styles.title} numberOfLines={2}>
