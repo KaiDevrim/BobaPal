@@ -35,7 +35,20 @@ describe('syncService', () => {
         identityId: 'test-identity',
       });
 
-      const mockDrink = {
+      const mockDrink: {
+        id: string;
+        flavor: string;
+        price: number;
+        store: string;
+        occasion: string;
+        rating: number;
+        date: string;
+        s3Key: string;
+        userId: string;
+        lastModified: Date;
+        synced: boolean;
+        update: jest.Mock;
+      } = {
         id: 'drink-1',
         flavor: 'Matcha',
         price: 5.99,
@@ -47,7 +60,7 @@ describe('syncService', () => {
         userId: 'test-identity',
         lastModified: new Date(),
         synced: false,
-        update: jest.fn((fn) => fn(mockDrink)),
+        update: jest.fn((fn: (d: { synced: boolean }) => void) => fn({ synced: true })),
       };
 
       (database.collections.get as jest.Mock).mockReturnValue({

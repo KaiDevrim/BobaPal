@@ -10,11 +10,17 @@ npm-debug.*
 *.orig.*
 web-build/
 
+# Production secrets
+google-service-account.json
+*.keystore
+secrets/
+.env
+.env.*
+!.env.example
 
-
-
-ios
-android
+# iOS/Android build artifacts
+ios/
+android/
 
 # macOS
 .DS_Store

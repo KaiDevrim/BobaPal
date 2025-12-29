@@ -1,0 +1,103 @@
+name: EAS Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to build'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - ios
+          - android
+      profile:
+        description: 'Build profile'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - development
+          - preview
+          - production
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run typecheck
+        run: npm run typecheck
+
+      - name: Build app (tag trigger)
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        run: eas build --platform all --profile production --non-interactive
+
+      - name: Build app (manual trigger)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          PLATFORM=${{ github.event.inputs.platform }}
+          PROFILE=${{ github.event.inputs.profile }}
+          if [ "$PLATFORM" = "all" ]; then
+            eas build --platform all --profile $PROFILE --non-interactive
+          else
+            eas build --platform $PLATFORM --profile $PROFILE --non-interactive
+          fi
+
+  submit:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Submit to App Store
+        run: eas submit --platform ios --profile production --non-interactive
+        continue-on-error: true
+
+      - name: Submit to Play Store
+        run: eas submit --platform android --profile production --non-interactive
+        continue-on-error: true
+

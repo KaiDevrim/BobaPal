@@ -3,51 +3,98 @@
     "name": "Buhba",
     "slug": "Buhba",
     "version": "1.0.0",
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "expo": {
-      "scheme": "buhba"
-    },
-    "experiments": {
-      "tsconfigPaths": true
-    },
-    "plugins": [      [
-      "expo-build-properties",
-      {
-        "ios": {
-          "extraPods": [
-            {
-              "name": "simdjson",
-              "configurations": ["Debug", "Release"],
-              "path": "../node_modules/@nozbe/simdjson",
-              "modular_headers": true
-            }
-          ]
-        }
-      }
-    ]],
+    "scheme": "buhba",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FFF8F0"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.Buhba"
+      "bundleIdentifier": "com.yourcompany.buhba",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Buhba needs camera access to take photos of your boba drinks.",
+        "NSPhotoLibraryUsageDescription": "Buhba needs photo library access to select photos of your boba drinks.",
+        "CFBundleAllowMixedLocalizations": true
+      },
+      "associatedDomains": [
+        "applinks:buhba.yourcompany.com"
+      ],
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FFF8F0"
       },
-      "package": "com.anonymous.Buhba"
+      "package": "com.yourcompany.buhba",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "buhba"
+            },
+            {
+              "scheme": "https",
+              "host": "buhba.yourcompany.com",
+              "pathPrefix": "/"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "experiments": {
+      "tsconfigPaths": true
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "extraPods": [
+              {
+                "name": "simdjson",
+                "configurations": ["Debug", "Release"],
+                "path": "../node_modules/@nozbe/simdjson",
+                "modular_headers": true
+              }
+            ]
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
+    },
+    "owner": "your-expo-username",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/your-eas-project-id"
     }
   }
 }
