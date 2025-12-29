@@ -1,13 +1,5 @@
 import React, { useState, useCallback, memo } from 'react';
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  Alert,
-  ScrollView,
-} from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import database from '../database/index.native';
@@ -28,7 +20,6 @@ const INITIAL_FORM: DrinkForm = {
   rating: null,
   imageUri: null,
 };
-
 
 const AddDrink: React.FC = () => {
   const [form, setForm] = useState<DrinkForm>(INITIAL_FORM);

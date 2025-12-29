@@ -43,4 +43,3 @@ describe('ratings constants', () => {
     });
   });
 });
-

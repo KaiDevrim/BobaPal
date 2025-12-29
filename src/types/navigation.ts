@@ -8,4 +8,3 @@ export type TabParamList = {
   AddDrink: undefined;
   Stats: undefined;
 };
-

@@ -46,12 +46,7 @@ const Gallery: React.FC = () => {
   const keyExtractor = useCallback((item: Drink) => item.id, []);
 
   if (drinks.length === 0) {
-    return (
-      <EmptyState
-        title="Your Boba Gallery"
-        message="Add some boba to see your collection!"
-      />
-    );
+    return <EmptyState title="Your Boba Gallery" message="Add some boba to see your collection!" />;
   }
 
   return (

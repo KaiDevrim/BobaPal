@@ -87,4 +87,3 @@ describe('theme constants', () => {
     });
   });
 });
-

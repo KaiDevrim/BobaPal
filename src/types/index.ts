@@ -34,4 +34,3 @@ export interface StatsData {
   totalSpent: number;
   topStores: [string, number][];
 }
-

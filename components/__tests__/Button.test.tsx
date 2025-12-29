@@ -10,4 +10,3 @@ describe('Button', () => {
     expect(Button.name).toBe('Button');
   });
 });
-

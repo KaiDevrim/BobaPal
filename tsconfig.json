@@ -14,12 +14,6 @@
     "emitDecoratorMetadata": false,
     "skipLibCheck": true
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "src/**/*.json"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "src/**/*.json"],
+  "exclude": ["node_modules"]
 }

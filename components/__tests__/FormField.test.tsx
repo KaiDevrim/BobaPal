@@ -10,4 +10,3 @@ describe('FormField', () => {
     expect(FormField.name).toBe('FormField');
   });
 });
-

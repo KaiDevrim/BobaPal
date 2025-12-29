@@ -12,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#FFF8F0"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "tech.devrim.buhba",
@@ -24,9 +22,7 @@
         "NSPhotoLibraryUsageDescription": "Buhba needs photo library access to select photos of your boba drinks.",
         "CFBundleAllowMixedLocalizations": true
       },
-      "associatedDomains": [
-        "applinks:buhba.devrim.tech"
-      ],
+      "associatedDomains": ["applinks:buhba.devrim.tech"],
       "config": {
         "usesNonExemptEncryption": false
       }
@@ -38,11 +34,7 @@
       },
       "package": "tech.devrim.buhba",
       "versionCode": 1,
-      "permissions": [
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
-      ],
+      "permissions": ["CAMERA", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"],
       "intentFilters": [
         {
           "action": "VIEW",
@@ -57,10 +49,7 @@
               "pathPrefix": "/"
             }
           ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },
@@ -78,10 +67,7 @@
             "extraPods": [
               {
                 "name": "simdjson",
-                "configurations": [
-                  "Debug",
-                  "Release"
-                ],
+                "configurations": ["Debug", "Release"],
                 "path": "../node_modules/@nozbe/simdjson",
                 "modular_headers": true
               }

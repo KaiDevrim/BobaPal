@@ -10,4 +10,3 @@ describe('EmptyState', () => {
     expect(EmptyState.name).toBe('EmptyState');
   });
 });
-

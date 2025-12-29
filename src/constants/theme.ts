@@ -126,4 +126,3 @@ export const commonStyles = StyleSheet.create({
     color: COLORS.text.secondary,
   },
 });
-

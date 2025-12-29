@@ -26,35 +26,27 @@ describe('Migration Definition Structure', () => {
   };
 
   it('migration to version 2 should add photo_url column', () => {
-    const photoUrlColumn = expectedMigration.addedColumns.find(
-      (c) => c.name === 'photo_url'
-    );
+    const photoUrlColumn = expectedMigration.addedColumns.find((c) => c.name === 'photo_url');
     expect(photoUrlColumn).toBeDefined();
     expect(photoUrlColumn?.type).toBe('string');
     expect(photoUrlColumn?.isOptional).toBe(true);
   });
 
   it('migration to version 2 should add s3_key column', () => {
-    const s3KeyColumn = expectedMigration.addedColumns.find(
-      (c) => c.name === 's3_key'
-    );
+    const s3KeyColumn = expectedMigration.addedColumns.find((c) => c.name === 's3_key');
     expect(s3KeyColumn).toBeDefined();
     expect(s3KeyColumn?.type).toBe('string');
     expect(s3KeyColumn?.isOptional).toBe(true);
   });
 
   it('migration to version 2 should add user_id column', () => {
-    const userIdColumn = expectedMigration.addedColumns.find(
-      (c) => c.name === 'user_id'
-    );
+    const userIdColumn = expectedMigration.addedColumns.find((c) => c.name === 'user_id');
     expect(userIdColumn).toBeDefined();
     expect(userIdColumn?.type).toBe('string');
   });
 
   it('migration to version 2 should add synced column', () => {
-    const syncedColumn = expectedMigration.addedColumns.find(
-      (c) => c.name === 'synced'
-    );
+    const syncedColumn = expectedMigration.addedColumns.find((c) => c.name === 'synced');
     expect(syncedColumn).toBeDefined();
     expect(syncedColumn?.type).toBe('boolean');
   });
@@ -67,4 +59,3 @@ describe('Migration Definition Structure', () => {
     expect(lastModifiedColumn?.type).toBe('number');
   });
 });
-

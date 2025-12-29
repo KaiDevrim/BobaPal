@@ -19,10 +19,7 @@ const MyDrinkCard: React.FC<MyDrinkCardProps> = memo(({ title, date, s3Key }) =>
         {loading ? (
           <ActivityIndicator size="small" color={COLORS.primary} />
         ) : (
-          <Image
-            source={imageUrl ? { uri: imageUrl } : DEFAULT_IMAGES.boba}
-            style={styles.image}
-          />
+          <Image source={imageUrl ? { uri: imageUrl } : DEFAULT_IMAGES.boba} style={styles.image} />
         )}
       </View>
       <View style={styles.textContainer}>

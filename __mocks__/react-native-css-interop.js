@@ -11,4 +11,3 @@ module.exports = {
     create: jest.fn((styles) => styles),
   },
 };
-

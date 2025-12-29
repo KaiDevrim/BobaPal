@@ -10,4 +10,3 @@ describe('StatsCard', () => {
     expect(StatsCard.name).toBe('StatsCard');
   });
 });
-

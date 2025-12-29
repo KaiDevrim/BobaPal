@@ -37,10 +37,12 @@ jest.mock('aws-amplify', () => ({
 jest.mock('aws-amplify/auth', () => ({
   signInWithRedirect: jest.fn(),
   fetchAuthSession: jest.fn(() => Promise.resolve({ identityId: 'test-identity-id' })),
-  getCurrentUser: jest.fn(() => Promise.resolve({
-    userId: 'test-user-id',
-    signInDetails: { loginId: 'test@example.com' },
-  })),
+  getCurrentUser: jest.fn(() =>
+    Promise.resolve({
+      userId: 'test-user-id',
+      signInDetails: { loginId: 'test@example.com' },
+    })
+  ),
 }));
 
 jest.mock('aws-amplify/storage', () => ({
@@ -138,4 +140,3 @@ console.warn = (...args) => {
   }
   originalWarn.apply(console, args);
 };
-

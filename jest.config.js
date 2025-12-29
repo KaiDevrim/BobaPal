@@ -13,14 +13,8 @@ module.exports = {
     '^react-native$': '<rootDir>/__mocks__/react-native.js',
     '\\.(jpg|jpeg|png|gif|webp|svg)$': '<rootDir>/__mocks__/fileMock.js',
   },
-  testMatch: [
-    '**/__tests__/**/*.[jt]s?(x)',
-    '**/?(*.)+(spec|test).[jt]s?(x)',
-  ],
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/__tests__/utils/',
-  ],
+  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
+  testPathIgnorePatterns: ['/node_modules/', '/__tests__/utils/'],
   collectCoverageFrom: [
     'components/**/*.{ts,tsx}',
     'hooks/**/*.{ts,tsx}',
@@ -32,11 +26,7 @@ module.exports = {
     '!**/__tests__/**',
   ],
   coverageThreshold: {
-    global: { branches: 10,
-      functions: 15,
-      lines: 25,
-      statements: 25,
-    },
+    global: { branches: 10, functions: 15, lines: 25, statements: 25 },
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   testEnvironment: 'node',
@@ -44,4 +34,3 @@ module.exports = {
     __DEV__: true,
   },
 };
-

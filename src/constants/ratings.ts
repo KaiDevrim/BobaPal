@@ -11,4 +11,3 @@ export const RATING_EMOJIS: Record<number, string> = {
   3: '🙂',
   4: '😊',
 };
-

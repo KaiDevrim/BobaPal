@@ -7,4 +7,3 @@ export const DEFAULT_IMAGES = {
   boba: require('../../assets/boba.jpg'),
   boba2: require('../../assets/boba2.jpg'),
 } as const;
-

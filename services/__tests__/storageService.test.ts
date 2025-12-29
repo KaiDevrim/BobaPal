@@ -76,8 +76,9 @@ describe('storageService', () => {
         ok: false,
       });
 
-      await expect(uploadImage('file://bad.jpg', 'bad.jpg'))
-        .rejects.toThrow('Failed to fetch image for upload');
+      await expect(uploadImage('file://bad.jpg', 'bad.jpg')).rejects.toThrow(
+        'Failed to fetch image for upload'
+      );
     });
   });
 
@@ -117,4 +118,3 @@ describe('storageService', () => {
     });
   });
 });
-

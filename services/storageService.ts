@@ -20,10 +20,7 @@ export const getIdentityId = async (): Promise<string> => {
 /**
  * Upload an image to S3
  */
-export const uploadImage = async (
-  uri: string,
-  fileName: string
-): Promise<UploadResult> => {
+export const uploadImage = async (uri: string, fileName: string): Promise<UploadResult> => {
   const identityId = await getIdentityId();
   const s3Key = `drinks/${Date.now()}_${fileName}`;
 

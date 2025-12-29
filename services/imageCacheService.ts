@@ -35,4 +35,3 @@ export const clearImageCache = (): void => {
 export const removeFromCache = (s3Key: string): boolean => {
   return urlCache.delete(s3Key);
 };
-

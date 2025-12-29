@@ -4,7 +4,7 @@ import type {
   UserInfo,
   DrinkForm,
   DrinkData,
-  StatsData
+  StatsData,
 } from '../index';
 
 describe('Type exports', () => {
@@ -128,7 +128,7 @@ describe('Type exports', () => {
       const stats: StatsData = {
         drinkCount: 10,
         storeCount: 5,
-        totalSpent: 59.90,
+        totalSpent: 59.9,
         topStores: [
           ['Tsaocaa', 4],
           ['Gong Cha', 3],
@@ -138,7 +138,7 @@ describe('Type exports', () => {
 
       expect(stats.drinkCount).toBe(10);
       expect(stats.storeCount).toBe(5);
-      expect(stats.totalSpent).toBe(59.90);
+      expect(stats.totalSpent).toBe(59.9);
       expect(stats.topStores).toHaveLength(3);
       expect(stats.topStores[0]).toEqual(['Tsaocaa', 4]);
     });
@@ -155,4 +155,3 @@ describe('Type exports', () => {
     });
   });
 });
-

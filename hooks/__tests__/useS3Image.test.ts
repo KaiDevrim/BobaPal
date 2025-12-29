@@ -53,4 +53,3 @@ describe('useS3Image - cache service integration', () => {
     });
   });
 });
-

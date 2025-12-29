@@ -10,4 +10,3 @@ describe('DetailRow', () => {
     expect(DetailRow.name).toBe('DetailRow');
   });
 });
-

@@ -160,9 +160,7 @@ describe('syncService', () => {
         flavor: 'Existing',
       };
 
-      const cloudDrinks = [
-        { id: 'existing-drink', flavor: 'Existing', lastModified: Date.now() },
-      ];
+      const cloudDrinks = [{ id: 'existing-drink', flavor: 'Existing', lastModified: Date.now() }];
 
       (downloadData as jest.Mock).mockReturnValue({
         result: Promise.resolve({
@@ -187,4 +185,3 @@ describe('syncService', () => {
     });
   });
 });
-
