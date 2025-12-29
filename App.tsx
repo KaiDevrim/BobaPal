@@ -4,14 +4,15 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { DatabaseProvider } from '@nozbe/watermelondb/react';
-import { Amplify } from 'aws-amplify';
 import { signInWithRedirect } from 'aws-amplify/auth';
 import { useAuthenticator, Authenticator } from '@aws-amplify/ui-react-native';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
-import amplifyConfig from './src/amplifyconfiguration.json';
+import { configureAmplify } from './src/config/amplify';
+import { RootStackParamList, TabParamList } from './src/types/navigation';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS, SHADOWS } from './src/constants/theme';
 import database from './database/index.native';
-import BottomBar from './components/BottomBar';
+import { BottomBar } from './components';
 import Gallery from './pages/Gallery';
 import AddDrink from './pages/AddDrink';
 import Stats from './pages/Stats';
@@ -19,18 +20,11 @@ import DrinkDetail from './pages/DrinkDetail';
 import { syncFromCloud } from './services/syncService';
 import { useCurrentUser } from './hooks/useCurrentUser';
 
-Amplify.configure(amplifyConfig);
+// Initialize Amplify before any components render
+configureAmplify();
 
-export type RootStackParamList = {
-  MainTabs: undefined;
-  DrinkDetail: { drinkId: string };
-};
-
-export type TabParamList = {
-  Gallery: undefined;
-  AddDrink: undefined;
-  Stats: undefined;
-};
+// Re-export types for backward compatibility
+export type { RootStackParamList, TabParamList };
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -94,44 +88,40 @@ const authStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFF8F0',
-    padding: 20,
+    backgroundColor: COLORS.backgroundAlt,
+    padding: SPACING.xl,
   },
   title: {
-    fontSize: 48,
+    fontSize: FONT_SIZES.title,
     fontWeight: 'bold',
-    color: '#3D2317',
-    marginBottom: 8,
+    color: COLORS.text.accent,
+    marginBottom: SPACING.sm,
   },
   subtitle: {
-    fontSize: 18,
-    color: '#666',
+    fontSize: FONT_SIZES.lg,
+    color: COLORS.text.secondary,
     marginBottom: 40,
   },
   googleButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: COLORS.background,
     paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 12,
+    paddingHorizontal: SPACING.xxl,
+    borderRadius: BORDER_RADIUS.md,
     borderWidth: 1,
-    borderColor: '#ddd',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderColor: COLORS.border,
+    ...SHADOWS.sm,
   },
   googleIcon: {
     width: 24,
     height: 24,
-    marginRight: 12,
+    marginRight: SPACING.md,
   },
   googleButtonText: {
-    fontSize: 16,
+    fontSize: FONT_SIZES.md,
     fontWeight: '600',
-    color: '#333',
+    color: COLORS.text.primary,
   },
 });
 

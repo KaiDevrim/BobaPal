@@ -1,20 +1,30 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, ImageSourcePropType } from 'react-native';
+import React, { memo } from 'react';
+import { View, Text, Image, StyleSheet, ActivityIndicator } from 'react-native';
+import { useS3Image } from '../hooks/useS3Image';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS, SHADOWS } from '../src/constants/theme';
+import { DEFAULT_IMAGES } from '../src/constants';
 
 interface MyDrinkCardProps {
   title: string;
   date: string;
-  image: string | null;
+  s3Key: string | null;
 }
 
-const DEFAULT_IMAGE = require('../assets/boba.jpg');
-
-const MyDrinkCard: React.FC<MyDrinkCardProps> = ({ title, date, image }) => {
-  const imageSource: ImageSourcePropType = image ? { uri: image } : DEFAULT_IMAGE;
+const MyDrinkCard: React.FC<MyDrinkCardProps> = memo(({ title, date, s3Key }) => {
+  const { imageUrl, loading } = useS3Image(s3Key);
 
   return (
     <View style={styles.card}>
-      <Image source={imageSource} style={styles.image} />
+      <View style={styles.imageContainer}>
+        {loading ? (
+          <ActivityIndicator size="small" color={COLORS.primary} />
+        ) : (
+          <Image
+            source={imageUrl ? { uri: imageUrl } : DEFAULT_IMAGES.boba}
+            style={styles.image}
+          />
+        )}
+      </View>
       <View style={styles.textContainer}>
         <Text style={styles.title} numberOfLines={2}>
           {title}
@@ -23,39 +33,44 @@ const MyDrinkCard: React.FC<MyDrinkCardProps> = ({ title, date, image }) => {
       </View>
     </View>
   );
-};
+});
+
+MyDrinkCard.displayName = 'MyDrinkCard';
 
 const styles = StyleSheet.create({
   card: {
     width: 150,
     height: 200,
-    borderRadius: 12,
+    borderRadius: BORDER_RADIUS.md,
     overflow: 'hidden',
-    backgroundColor: 'white',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    margin: 10,
+    backgroundColor: COLORS.background,
+    ...SHADOWS.md,
+    margin: SPACING.sm,
+  },
+  imageContainer: {
+    width: '100%',
+    height: '65%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
   },
   image: {
     width: '100%',
-    height: '65%',
+    height: '100%',
   },
   textContainer: {
-    padding: 12,
+    padding: SPACING.md,
     flex: 1,
   },
   title: {
-    fontSize: 12,
+    fontSize: FONT_SIZES.xs,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
+    color: COLORS.text.primary,
+    marginBottom: SPACING.xs,
   },
   date: {
-    fontSize: 12,
-    color: '#666',
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.text.secondary,
   },
 });
 

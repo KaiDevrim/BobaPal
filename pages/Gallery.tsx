@@ -1,12 +1,12 @@
-import React, { useCallback, useState } from 'react';
-import { View, FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import React, { useCallback, useState, memo } from 'react';
+import { View, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
-import MyDrinkCard from '../components/MyDrinkCard';
-import { RootStackParamList } from '../App';
+import { MyDrinkCard, EmptyState } from '../components';
+import { RootStackParamList } from '../src/types/navigation';
+import { SPACING } from '../src/constants/theme';
 
 const Gallery: React.FC = () => {
   const [drinks, setDrinks] = useState<Drink[]>([]);
@@ -36,8 +36,8 @@ const Gallery: React.FC = () => {
 
   const renderItem = useCallback(
     ({ item }: { item: Drink }) => (
-      <TouchableOpacity onPress={() => handleDrinkPress(item.id)}>
-        <MyDrinkCard title={item.flavor} date={item.date} image={item.photoUrl} />
+      <TouchableOpacity onPress={() => handleDrinkPress(item.id)} activeOpacity={0.8}>
+        <MyDrinkCard title={item.flavor} date={item.date} s3Key={item.s3Key} />
       </TouchableOpacity>
     ),
     [handleDrinkPress]
@@ -47,10 +47,10 @@ const Gallery: React.FC = () => {
 
   if (drinks.length === 0) {
     return (
-      <SafeAreaView style={styles.emptyContainer}>
-        <Text style={styles.emptyTitle}>Your Boba Gallery</Text>
-        <Text style={styles.emptyText}>Add some boba to see your collection!</Text>
-      </SafeAreaView>
+      <EmptyState
+        title="Your Boba Gallery"
+        message="Add some boba to see your collection!"
+      />
     );
   }
 
@@ -64,6 +64,9 @@ const Gallery: React.FC = () => {
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        removeClippedSubviews
+        maxToRenderPerBatch={10}
+        windowSize={5}
       />
     </View>
   );
@@ -72,23 +75,8 @@ const Gallery: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 15,
+    padding: SPACING.lg,
     paddingTop: 50,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#666',
   },
   row: {
     justifyContent: 'space-between',
@@ -98,4 +86,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Gallery;
+export default memo(Gallery);

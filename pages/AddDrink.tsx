@@ -1,13 +1,12 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import {
   Image,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
   Alert,
-  ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
@@ -16,15 +15,10 @@ import Drink from '../database/model/Drink';
 import { uploadImage } from '../services/storageService';
 import { syncToCloud } from '../services/syncService';
 import { useCurrentUser } from '../hooks/useCurrentUser';
-
-interface DrinkForm {
-  flavor: string;
-  price: string;
-  store: string;
-  occasion: string;
-  rating: number | null;
-  imageUri: string | null;
-}
+import { FormField, Button } from '../components';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
+import { RATINGS, DEFAULT_IMAGES } from '../src/constants';
+import type { DrinkForm } from '../src/types';
 
 const INITIAL_FORM: DrinkForm = {
   flavor: '',
@@ -35,14 +29,6 @@ const INITIAL_FORM: DrinkForm = {
   imageUri: null,
 };
 
-const RATINGS = [
-  { value: 1, emoji: '😞' },
-  { value: 2, emoji: '😐' },
-  { value: 3, emoji: '🙂' },
-  { value: 4, emoji: '😊' },
-];
-
-const DEFAULT_IMAGE = require('../assets/boba.jpg');
 
 const AddDrink: React.FC = () => {
   const [form, setForm] = useState<DrinkForm>(INITIAL_FORM);
@@ -141,197 +127,125 @@ const AddDrink: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Image
-        source={form.imageUri ? { uri: form.imageUri } : DEFAULT_IMAGE}
-        style={styles.imagePlaceholder}
-      />
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled">
+        <Image
+          source={form.imageUri ? { uri: form.imageUri } : DEFAULT_IMAGES.boba}
+          style={styles.imagePlaceholder}
+        />
 
-      <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.secondaryButton} onPress={takePhoto}>
-          <Text style={styles.secondaryButtonText}>Take Photo</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.primaryButton} onPress={pickImage}>
-          <Text style={styles.primaryButtonText}>Choose Photo</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.buttonRow}>
+          <Button title="Take Photo" onPress={takePhoto} variant="secondary" />
+          <Button title="Choose Photo" onPress={pickImage} variant="outline" />
+        </View>
 
-      <FormField
-        label="Flavor"
-        placeholder="e.g. Strawberry Matcha Latte"
-        value={form.flavor}
-        onChangeText={(text) => updateField('flavor', text)}
-      />
+        <FormField
+          label="Flavor"
+          placeholder="e.g. Strawberry Matcha Latte"
+          value={form.flavor}
+          onChangeText={(text: string) => updateField('flavor', text)}
+        />
 
-      <FormField
-        label="Price"
-        placeholder="e.g. 5.99"
-        value={form.price}
-        onChangeText={(text) => {
-          if (/^\d*\.?\d*$/.test(text)) updateField('price', text);
-        }}
-        keyboardType="numeric"
-      />
+        <FormField
+          label="Price"
+          placeholder="e.g. 5.99"
+          value={form.price}
+          onChangeText={(text: string) => {
+            if (/^\d*\.?\d*$/.test(text)) updateField('price', text);
+          }}
+          keyboardType="numeric"
+        />
 
-      <FormField
-        label="Store"
-        placeholder="e.g. Tsaocaa"
-        value={form.store}
-        onChangeText={(text) => updateField('store', text)}
-      />
+        <FormField
+          label="Store"
+          placeholder="e.g. Tsaocaa"
+          value={form.store}
+          onChangeText={(text: string) => updateField('store', text)}
+        />
 
-      <FormField
-        label="What is the occasion?"
-        placeholder="e.g. Celebrating that I passed my exam!"
-        value={form.occasion}
-        onChangeText={(text) => updateField('occasion', text)}
-      />
+        <FormField
+          label="What is the occasion?"
+          placeholder="e.g. Celebrating that I passed my exam!"
+          value={form.occasion}
+          onChangeText={(text: string) => updateField('occasion', text)}
+        />
 
-      <Text style={styles.label}>Rating</Text>
-      <View style={styles.ratingContainer}>
-        {RATINGS.map(({ value, emoji }) => (
-          <TouchableOpacity
-            key={value}
-            onPress={() => updateField('rating', value)}
-            style={[styles.emojiButton, form.rating === value && styles.selectedEmojiButton]}>
-            <Text style={styles.emoji}>{emoji}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+        <Text style={styles.label}>Rating</Text>
+        <View style={styles.ratingContainer}>
+          {RATINGS.map(({ value, emoji }) => (
+            <TouchableOpacity
+              key={value}
+              onPress={() => updateField('rating', value)}
+              style={[styles.emojiButton, form.rating === value && styles.selectedEmojiButton]}
+              activeOpacity={0.7}>
+              <Text style={styles.emoji}>{emoji}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      <TouchableOpacity
-        style={[styles.submitButton, saving && { opacity: 0.7 }]}
-        onPress={saveDrink}
-        disabled={saving}>
-        {saving ? (
-          <ActivityIndicator color="white" />
-        ) : (
-          <Text style={styles.submitButtonText}>Log My Boba!</Text>
-        )}
-      </TouchableOpacity>
+        <Button
+          title="Log My Boba!"
+          onPress={saveDrink}
+          loading={saving}
+          disabled={saving}
+          style={styles.submitButton}
+        />
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
-interface FormFieldProps {
-  label: string;
-  placeholder: string;
-  value: string;
-  onChangeText: (text: string) => void;
-  keyboardType?: 'default' | 'numeric';
-}
-
-const FormField: React.FC<FormFieldProps> = ({
-  label,
-  placeholder,
-  value,
-  onChangeText,
-  keyboardType = 'default',
-}) => (
-  <>
-    <Text style={styles.label}>{label}</Text>
-    <TextInput
-      style={styles.input}
-      placeholder={placeholder}
-      placeholderTextColor="#999"
-      value={value}
-      onChangeText={onChangeText}
-      keyboardType={keyboardType}
-    />
-  </>
-);
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  scrollContent: {
     alignItems: 'center',
-    backgroundColor: 'white',
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingHorizontal: SPACING.xl,
+    paddingTop: SPACING.xl,
+    paddingBottom: 100,
   },
   imagePlaceholder: {
     width: 100,
     height: 100,
-    borderRadius: 50,
+    borderRadius: BORDER_RADIUS.full,
     backgroundColor: '#f5f5f5',
-    marginBottom: 10,
+    marginBottom: SPACING.sm,
   },
   buttonRow: {
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 20,
-  },
-  primaryButton: {
-    backgroundColor: 'white',
-    borderWidth: 2,
-    borderColor: '#4A90E2',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-  },
-  primaryButtonText: {
-    color: '#4A90E2',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  secondaryButton: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-  },
-  secondaryButtonText: {
-    color: '#666',
-    fontSize: 16,
+    gap: SPACING.sm,
+    marginBottom: SPACING.xl,
   },
   label: {
-    fontSize: 16,
+    fontSize: FONT_SIZES.md,
     fontWeight: '600',
-    color: '#333',
+    color: COLORS.text.primary,
     alignSelf: 'flex-start',
-    marginTop: 8,
-  },
-  input: {
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    fontSize: 15,
-    backgroundColor: 'white',
-    marginBottom: 5,
+    marginTop: SPACING.sm,
   },
   ratingContainer: {
     flexDirection: 'row',
-    gap: 15,
-    marginVertical: 15,
+    gap: SPACING.lg,
+    marginVertical: SPACING.lg,
   },
   emojiButton: {
-    padding: 8,
-    borderRadius: 12,
+    padding: SPACING.sm,
+    borderRadius: BORDER_RADIUS.md,
   },
   emoji: {
-    fontSize: 32,
+    fontSize: FONT_SIZES.xxxl,
   },
   selectedEmojiButton: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: COLORS.secondary,
   },
   submitButton: {
-    backgroundColor: '#FF9800',
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 40,
-    marginTop: 20,
+    marginTop: SPACING.xl,
     width: '100%',
-    alignItems: 'center',
-  },
-  submitButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });
 
-export default AddDrink;
+export default memo(AddDrink);

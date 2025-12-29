@@ -1,25 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import { Image, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
-import { RootStackParamList } from '../App';
-
-const RATINGS: Record<number, string> = {
-  1: '😞',
-  2: '😐',
-  3: '🙂',
-  4: '😊',
-};
-
-const DEFAULT_IMAGE = require('../assets/boba2.jpg');
+import { RootStackParamList } from '../src/types/navigation';
+import { useS3Image } from '../hooks/useS3Image';
+import { LoadingState, DetailRow } from '../components';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
+import { RATING_EMOJIS, DEFAULT_IMAGES } from '../src/constants';
 
 const DrinkDetail: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'DrinkDetail'>>();
   const { drinkId } = route.params;
   const [drink, setDrink] = useState<Drink | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const { imageUrl, loading: imageLoading } = useS3Image(drink?.s3Key ?? null);
 
   useEffect(() => {
     const fetchDrink = async () => {
@@ -36,11 +33,7 @@ const DrinkDetail: React.FC = () => {
   }, [drinkId]);
 
   if (loading) {
-    return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF9800" />
-      </SafeAreaView>
-    );
+    return <LoadingState />;
   }
 
   if (!drink) {
@@ -53,10 +46,16 @@ const DrinkDetail: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Image
-        source={drink.photoUrl ? { uri: drink.photoUrl } : DEFAULT_IMAGE}
-        style={styles.image}
-      />
+      <View style={styles.imageContainer}>
+        {imageLoading ? (
+          <ActivityIndicator size="small" color={COLORS.primary} />
+        ) : (
+          <Image
+            source={imageUrl ? { uri: imageUrl } : DEFAULT_IMAGES.boba2}
+            style={styles.image}
+          />
+        )}
+      </View>
 
       <DetailRow label="Flavor" value={drink.flavor} />
       <DetailRow label="Price" value={`$${drink.price.toFixed(2)}`} />
@@ -65,67 +64,51 @@ const DrinkDetail: React.FC = () => {
       <DetailRow label="Date" value={drink.date} />
 
       <Text style={styles.label}>Rating</Text>
-      <Text style={styles.ratingEmoji}>{RATINGS[drink.rating] || '—'}</Text>
+      <Text style={styles.ratingEmoji}>{RATING_EMOJIS[drink.rating] || '—'}</Text>
     </SafeAreaView>
   );
 };
-
-interface DetailRowProps {
-  label: string;
-  value: string;
-}
-
-const DetailRow: React.FC<DetailRowProps> = ({ label, value }) => (
-  <>
-    <Text style={styles.label}>{label}</Text>
-    <Text style={styles.value}>{value}</Text>
-  </>
-);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: 'white',
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    backgroundColor: COLORS.background,
+    paddingHorizontal: SPACING.xl,
+    paddingTop: SPACING.xl,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: COLORS.background,
+  },
+  imageContainer: {
+    width: 200,
+    height: 200,
+    borderRadius: BORDER_RADIUS.full,
+    backgroundColor: '#f5f5f5',
+    marginBottom: SPACING.xl,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
   },
   image: {
     width: 200,
     height: 200,
-    borderRadius: 100,
-    backgroundColor: '#f5f5f5',
-    marginBottom: 20,
+    borderRadius: BORDER_RADIUS.full,
   },
   label: {
-    fontSize: 16,
+    fontSize: FONT_SIZES.md,
     fontWeight: '600',
-    color: '#333',
+    color: COLORS.text.primary,
     alignSelf: 'flex-start',
-    marginTop: 8,
-  },
-  value: {
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    fontSize: 15,
-    backgroundColor: '#f9f9f9',
-    marginBottom: 5,
-    color: '#333',
+    marginTop: SPACING.sm,
   },
   ratingEmoji: {
-    fontSize: 48,
-    marginTop: 10,
+    fontSize: FONT_SIZES.title,
+    marginTop: SPACING.sm,
   },
 });
 
-export default DrinkDetail;
+export default memo(DrinkDetail);

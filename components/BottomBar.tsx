@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
 
 type TabConfig = {
   name: string;
@@ -22,13 +23,14 @@ const BottomBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
     <View style={styles.bottomBar}>
       {TABS.map((tab) => {
         const isActive = currentTab === tab.name;
-        const color = isActive ? '#FF9800' : 'white';
+        const color = isActive ? COLORS.primary : COLORS.background;
 
         return (
           <TouchableOpacity
             key={tab.name}
             onPress={() => navigation.navigate(tab.name)}
-            style={styles.tabItem}>
+            style={styles.tabItem}
+            activeOpacity={0.7}>
             <AntDesign name={tab.icon} size={22} color={color} style={styles.icon} />
             <Text style={[styles.label, { color }]}>{tab.label}</Text>
           </TouchableOpacity>
@@ -43,12 +45,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     position: 'absolute',
     bottom: 0,
-    left: 20,
-    right: 20,
-    backgroundColor: '#583B39',
-    borderRadius: 20,
+    left: SPACING.xl,
+    right: SPACING.xl,
+    backgroundColor: COLORS.bottomBar,
+    borderRadius: BORDER_RADIUS.xl,
     height: 70,
-    paddingHorizontal: 10,
+    paddingHorizontal: SPACING.sm,
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -61,10 +63,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   icon: {
-    marginBottom: 4,
+    marginBottom: SPACING.xs,
   },
   label: {
-    fontSize: 12,
+    fontSize: FONT_SIZES.xs,
   },
 });
 
