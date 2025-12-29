@@ -4,7 +4,9 @@
   "scripts": {
     "android": "expo run:android",
     "ios": "expo run:ios",
+    "ios:simulator": "xcodebuild -workspace ios/Buhba.xcworkspace -scheme Buhba -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' -derivedDataPath ios/build && xcrun simctl install booted ios/build/Build/Products/Debug-iphonesimulator/Buhba.app && xcrun simctl launch booted tech.devrim.buhba",
     "start": "expo start",
+    "start:dev": "expo start --dev-client",
     "prebuild": "expo prebuild",
     "lint": "eslint \"**/*.{js,jsx,ts,tsx}\" && prettier -c \"**/*.{js,jsx,ts,tsx,json}\"",
     "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",

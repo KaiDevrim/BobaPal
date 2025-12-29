@@ -4,6 +4,7 @@ import {
   removeFromCache,
   getCacheStats,
   cleanExpiredCache,
+  prefetchImages,
 } from '../imageCacheService';
 
 // Mock the storage service
@@ -19,6 +20,7 @@ jest.mock('expo-image', () => ({
 }));
 
 import { getImageUrl } from '../storageService';
+import { Image } from 'expo-image';
 
 describe('imageCacheService', () => {
   beforeEach(() => {
@@ -124,6 +126,59 @@ describe('imageCacheService', () => {
       expect(stats.hits).toBe(1);
       expect(stats.misses).toBe(1);
       expect(stats.size).toBe(1);
+    });
+  });
+
+  describe('prefetchImages', () => {
+    it('fetches URLs and prefetches images', async () => {
+      const mockUrl1 = 'https://example.com/image1.jpg';
+      const mockUrl2 = 'https://example.com/image2.jpg';
+      (getImageUrl as jest.Mock)
+        .mockResolvedValueOnce(mockUrl1)
+        .mockResolvedValueOnce(mockUrl2);
+
+      await prefetchImages(['key1', 'key2']);
+
+      expect(getImageUrl).toHaveBeenCalledTimes(2);
+      expect(Image.prefetch).toHaveBeenCalledWith([mockUrl1, mockUrl2]);
+    });
+
+    it('filters out null keys', async () => {
+      const mockUrl = 'https://example.com/image.jpg';
+      (getImageUrl as jest.Mock).mockResolvedValue(mockUrl);
+
+      await prefetchImages([null, 'key1', null, 'key2', null]);
+
+      expect(getImageUrl).toHaveBeenCalledTimes(2);
+    });
+
+    it('handles empty array', async () => {
+      await prefetchImages([]);
+
+      expect(getImageUrl).not.toHaveBeenCalled();
+      expect(Image.prefetch).not.toHaveBeenCalled();
+    });
+
+    it('handles all null keys', async () => {
+      await prefetchImages([null, null, null]);
+
+      expect(getImageUrl).not.toHaveBeenCalled();
+      expect(Image.prefetch).not.toHaveBeenCalled();
+    });
+
+    it('does not call prefetch if all URLs fail', async () => {
+      (getImageUrl as jest.Mock).mockRejectedValue(new Error('Failed'));
+
+      await prefetchImages(['key1', 'key2']);
+
+      expect(Image.prefetch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('cleanExpiredCache', () => {
+    it('returns 0 when cache is empty', () => {
+      const cleaned = cleanExpiredCache();
+      expect(cleaned).toBe(0);
     });
   });
 });
