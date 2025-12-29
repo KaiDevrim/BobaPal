@@ -61,6 +61,13 @@ export const SHADOWS = {
     shadowRadius: 3.84,
     elevation: 5,
   },
+  lg: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
+  },
 } as const;
 
 export const commonStyles = StyleSheet.create({

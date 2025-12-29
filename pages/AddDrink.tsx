@@ -7,7 +7,7 @@ import Drink from '../database/model/Drink';
 import { uploadImage } from '../services/storageService';
 import { syncToCloud } from '../services/syncService';
 import { useCurrentUser } from '../hooks/useCurrentUser';
-import { FormField, Button } from '../components';
+import { FormField, Button, StoreAutocomplete } from '../components';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
 import { RATINGS, DEFAULT_IMAGES } from '../src/constants';
 import type { DrinkForm } from '../src/types';
@@ -149,11 +149,10 @@ const AddDrink: React.FC = () => {
           keyboardType="numeric"
         />
 
-        <FormField
-          label="Store"
-          placeholder="e.g. Tsaocaa"
+        <StoreAutocomplete
           value={form.store}
           onChangeText={(text: string) => updateField('store', text)}
+          placeholder="Search for a boba shop..."
         />
 
         <FormField

@@ -18,7 +18,7 @@ import { uploadImage, deleteImage } from '../services/storageService';
 import { syncToCloud } from '../services/syncService';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { useS3Image } from '../hooks/useS3Image';
-import { FormField, Button, LoadingState } from '../components';
+import { FormField, Button, LoadingState, StoreAutocomplete } from '../components';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
 import { RATINGS } from '../src/constants';
 import { RootStackParamList } from '../src/types/navigation';
@@ -282,11 +282,10 @@ const EditDrink: React.FC = () => {
           keyboardType="numeric"
         />
 
-        <FormField
-          label="Store"
-          placeholder="e.g. Tsaocaa"
+        <StoreAutocomplete
           value={form.store}
           onChangeText={(text: string) => updateField('store', text)}
+          placeholder="Search for a boba shop..."
         />
 
         <FormField
