@@ -133,9 +133,7 @@ describe('imageCacheService', () => {
     it('fetches URLs and prefetches images', async () => {
       const mockUrl1 = 'https://example.com/image1.jpg';
       const mockUrl2 = 'https://example.com/image2.jpg';
-      (getImageUrl as jest.Mock)
-        .mockResolvedValueOnce(mockUrl1)
-        .mockResolvedValueOnce(mockUrl2);
+      (getImageUrl as jest.Mock).mockResolvedValueOnce(mockUrl1).mockResolvedValueOnce(mockUrl2);
 
       await prefetchImages(['key1', 'key2']);
 

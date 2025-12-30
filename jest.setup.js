@@ -129,14 +129,43 @@ jest.mock('./src/config/amplify', () => ({
   amplifyConfig: {},
 }));
 
-// Suppress console warnings in tests
+// Suppress expected console output in tests for cleaner output
 const originalWarn = console.warn;
+const originalError = console.error;
+const originalLog = console.log;
+
+// Messages that are expected during tests (error handling scenarios)
+const suppressedMessages = [
+  'Please update the following components',
+  'componentWillReceiveProps',
+  'Location permission not granted',
+  'Google Places API key not configured',
+  'Failed to get image URL',
+  'Error getting location',
+  'Error searching places',
+  'Places API error',
+  'Place details error',
+  'Nearby search error',
+  'No backup found',
+];
+
+const shouldSuppress = (args) => {
+  const message = args[0]?.toString?.() || '';
+  return suppressedMessages.some((suppressed) => message.includes(suppressed));
+};
+
 console.warn = (...args) => {
-  if (
-    args[0]?.includes?.('Please update the following components') ||
-    args[0]?.includes?.('componentWillReceiveProps')
-  ) {
-    return;
-  }
+  if (shouldSuppress(args)) return;
   originalWarn.apply(console, args);
 };
+
+console.error = (...args) => {
+  if (shouldSuppress(args)) return;
+  originalError.apply(console, args);
+};
+
+console.log = (...args) => {
+  if (shouldSuppress(args)) return;
+  originalLog.apply(console, args);
+};
+

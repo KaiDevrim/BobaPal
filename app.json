@@ -12,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#FFF8F0"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "tech.devrim.buhba",
@@ -25,9 +23,7 @@
         "NSLocationWhenInUseUsageDescription": "Buhba uses your location to find nearby boba shops.",
         "CFBundleAllowMixedLocalizations": true
       },
-      "associatedDomains": [
-        "applinks:buhba.devrim.tech"
-      ],
+      "associatedDomains": ["applinks:buhba.devrim.tech"],
       "config": {
         "usesNonExemptEncryption": false
       }
@@ -60,10 +56,7 @@
               "pathPrefix": "/"
             }
           ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },
@@ -81,10 +74,7 @@
             "extraPods": [
               {
                 "name": "simdjson",
-                "configurations": [
-                  "Debug",
-                  "Release"
-                ],
+                "configurations": ["Debug", "Release"],
                 "path": "../node_modules/@nozbe/simdjson",
                 "modular_headers": true
               }

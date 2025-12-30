@@ -50,4 +50,3 @@ export const useLocation = (): UseLocationResult => {
     refresh: fetchLocation,
   };
 };
-

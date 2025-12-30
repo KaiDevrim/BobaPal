@@ -30,7 +30,7 @@ describe('Stats calculations', () => {
     });
 
     it('sums all drink prices', () => {
-      const drinks = [{ price: 5.99 }, { price: 4.50 }, { price: 6.25 }];
+      const drinks = [{ price: 5.99 }, { price: 4.5 }, { price: 6.25 }];
       expect(calculateTotalSpent(drinks)).toBeCloseTo(16.74);
     });
 
@@ -52,7 +52,7 @@ describe('Stats calculations', () => {
     });
 
     it('calculates correct average', () => {
-      const drinks = [{ price: 5.00 }, { price: 6.00 }, { price: 7.00 }];
+      const drinks = [{ price: 5.0 }, { price: 6.0 }, { price: 7.0 }];
       expect(calculateAveragePrice(drinks)).toBe(6);
     });
 
@@ -62,7 +62,7 @@ describe('Stats calculations', () => {
     });
 
     it('handles decimal averages', () => {
-      const drinks = [{ price: 5.00 }, { price: 6.00 }];
+      const drinks = [{ price: 5.0 }, { price: 6.0 }];
       expect(calculateAveragePrice(drinks)).toBe(5.5);
     });
   });
@@ -164,4 +164,3 @@ describe('Stats calculations', () => {
     });
   });
 });
-

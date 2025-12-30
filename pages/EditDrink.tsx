@@ -1,12 +1,5 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  Alert,
-  ScrollView,
-} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Alert, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
@@ -407,4 +400,3 @@ const styles = StyleSheet.create({
 });
 
 export default memo(EditDrink);
-

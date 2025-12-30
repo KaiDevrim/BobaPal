@@ -67,7 +67,13 @@ describe('EditDrink functionality', () => {
     });
 
     it('returns error when rating is null', () => {
-      const form = { flavor: 'Matcha', price: '5.99', store: 'Store', occasion: 'Test', rating: null };
+      const form = {
+        flavor: 'Matcha',
+        price: '5.99',
+        store: 'Store',
+        occasion: 'Test',
+        rating: null,
+      };
       expect(validateForm(form)).toBe('Please select a rating');
     });
 
@@ -140,4 +146,3 @@ describe('EditDrink functionality', () => {
     });
   });
 });
-

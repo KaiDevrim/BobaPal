@@ -73,4 +73,3 @@ describe('DrinkDetail display helpers', () => {
     });
   });
 });
-

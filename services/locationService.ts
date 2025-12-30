@@ -62,4 +62,3 @@ export const getLastKnownLocation = async (): Promise<Coordinates | null> => {
     return null;
   }
 };
-

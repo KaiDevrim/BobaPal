@@ -103,9 +103,7 @@ export const getPlaceDetails = async (placeId: string): Promise<PlaceDetails | n
 /**
  * Search for nearby boba places without a query (discovery)
  */
-export const searchNearbyBobaPlaces = async (
-  location: Coordinates
-): Promise<PlacePrediction[]> => {
+export const searchNearbyBobaPlaces = async (location: Coordinates): Promise<PlacePrediction[]> => {
   const apiKey = getGooglePlacesApiKey();
   if (!apiKey) {
     return [];
@@ -133,4 +131,3 @@ export const searchNearbyBobaPlaces = async (
     return [];
   }
 };
-

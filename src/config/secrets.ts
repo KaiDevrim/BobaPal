@@ -40,4 +40,3 @@ export const hasSecret = (key: keyof AppSecrets): boolean => {
 export const getGooglePlacesApiKey = (): string => {
   return process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY || '';
 };
-
