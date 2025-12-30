@@ -4,7 +4,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  FlatList,
+  ScrollView,
   StyleSheet,
   ActivityIndicator,
   Keyboard,
@@ -96,28 +96,6 @@ const StoreAutocomplete: React.FC<StoreAutocompleteProps> = memo(
       };
     }, [debounceTimer]);
 
-    const renderSuggestion = useCallback(
-      ({ item }: { item: PlacePrediction }) => (
-        <TouchableOpacity
-          style={styles.suggestionItem}
-          onPress={() => handleSelectSuggestion(item)}
-          activeOpacity={0.7}>
-          <View style={styles.suggestionContent}>
-            <Text style={styles.suggestionName} numberOfLines={1}>
-              {item.name}
-            </Text>
-            {item.address && (
-              <Text style={styles.suggestionAddress} numberOfLines={1}>
-                {item.address}
-              </Text>
-            )}
-          </View>
-          {item.distance && <Text style={styles.suggestionDistance}>{item.distance}</Text>}
-        </TouchableOpacity>
-      ),
-      [handleSelectSuggestion]
-    );
-
     return (
       <View style={styles.container}>
         <Text style={styles.label}>Store</Text>
@@ -141,14 +119,31 @@ const StoreAutocomplete: React.FC<StoreAutocompleteProps> = memo(
 
         {showSuggestions && suggestions.length > 0 && (
           <View style={styles.suggestionsContainer}>
-            <FlatList
-              data={suggestions}
-              renderItem={renderSuggestion}
-              keyExtractor={(item) => item.placeId}
-              keyboardShouldPersistTaps="handled"
+            <ScrollView
               style={styles.suggestionsList}
+              keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
-            />
+              nestedScrollEnabled>
+              {suggestions.map((item) => (
+                <TouchableOpacity
+                  key={item.placeId}
+                  style={styles.suggestionItem}
+                  onPress={() => handleSelectSuggestion(item)}
+                  activeOpacity={0.7}>
+                  <View style={styles.suggestionContent}>
+                    <Text style={styles.suggestionName} numberOfLines={1}>
+                      {item.name}
+                    </Text>
+                    {item.address && (
+                      <Text style={styles.suggestionAddress} numberOfLines={1}>
+                        {item.address}
+                      </Text>
+                    )}
+                  </View>
+                  {item.distance && <Text style={styles.suggestionDistance}>{item.distance}</Text>}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
         )}
       </View>

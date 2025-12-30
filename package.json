@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "android": "expo run:android",
-    "ios": "expo run:ios",
-    "ios:simulator": "xcodebuild -workspace ios/Buhba.xcworkspace -scheme Buhba -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' -derivedDataPath ios/build && xcrun simctl install booted ios/build/Build/Products/Debug-iphonesimulator/Buhba.app && xcrun simctl launch booted tech.devrim.buhba",
+    "ios": "xcodebuild -workspace ios/Buhba.xcworkspace -scheme Buhba -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' -derivedDataPath ios/build -quiet && xcrun simctl install booted ios/build/Build/Products/Debug-iphonesimulator/Buhba.app && xcrun simctl launch booted tech.devrim.buhba && npm run start:dev",
+    "ios:build": "xcodebuild -workspace ios/Buhba.xcworkspace -scheme Buhba -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' -derivedDataPath ios/build",
+    "ios:device": "expo run:ios",
     "start": "expo start",
     "start:dev": "expo start --dev-client",
     "prebuild": "expo prebuild",
