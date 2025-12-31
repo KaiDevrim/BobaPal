@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "Buhba",
-    "slug": "Buhba",
+    "name": "BobaPal",
+    "slug": "BobaPal",
     "version": "1.0.0",
-    "scheme": "buhba",
+    "scheme": "bobapal",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -12,18 +12,19 @@
       "resizeMode": "contain",
       "backgroundColor": "#FFF8F0"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "tech.devrim.buhba",
+      "bundleIdentifier": "tech.devrim.bobapal",
       "buildNumber": "1",
       "infoPlist": {
-        "NSCameraUsageDescription": "Buhba needs camera access to take photos of your boba drinks.",
-        "NSPhotoLibraryUsageDescription": "Buhba needs photo library access to select photos of your boba drinks.",
-        "NSLocationWhenInUseUsageDescription": "Buhba uses your location to find nearby boba shops.",
+        "NSCameraUsageDescription": "BobaPal needs camera access to take photos of your boba drinks.",
+        "NSPhotoLibraryUsageDescription": "BobaPal needs photo library access to select photos of your boba drinks.",
+        "NSLocationWhenInUseUsageDescription": "BobaPal uses your location to find nearby boba shops.",
         "CFBundleAllowMixedLocalizations": true
       },
-      "associatedDomains": ["applinks:buhba.devrim.tech"],
       "config": {
         "usesNonExemptEncryption": false
       }
@@ -33,7 +34,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFF8F0"
       },
-      "package": "tech.devrim.buhba",
+      "package": "tech.devrim.bobapal",
       "versionCode": 1,
       "permissions": [
         "CAMERA",
@@ -48,15 +49,18 @@
           "autoVerify": true,
           "data": [
             {
-              "scheme": "buhba"
+              "scheme": "bobapal"
             },
             {
               "scheme": "https",
-              "host": "buhba.devrim.tech",
+              "host": "bobapal.devrim.tech",
               "pathPrefix": "/"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -74,7 +78,10 @@
             "extraPods": [
               {
                 "name": "simdjson",
-                "configurations": ["Debug", "Release"],
+                "configurations": [
+                  "Debug",
+                  "Release"
+                ],
                 "path": "../node_modules/@nozbe/simdjson",
                 "modular_headers": true
               }

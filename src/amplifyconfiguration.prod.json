@@ -7,8 +7,8 @@
   "oauth": {
     "domain": "YOUR_PROD_COGNITO_DOMAIN.auth.us-east-2.amazoncognito.com",
     "scope": ["phone", "email", "openid", "profile", "aws.cognito.signin.user.admin"],
-    "redirectSignIn": "buhba://",
-    "redirectSignOut": "buhba://",
+    "redirectSignIn": "bobapal://",
+    "redirectSignOut": "bobapal://",
     "responseType": "code"
   },
   "federationTarget": "COGNITO_USER_POOLS",

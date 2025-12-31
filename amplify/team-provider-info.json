@@ -1,22 +1,22 @@
 {
   "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-buhba-dev-5fd58-authRole",
-      "UnauthRoleArn": "arn:aws:iam::570399905115:role/amplify-buhba-dev-5fd58-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::570399905115:role/amplify-buhba-dev-5fd58-authRole",
+      "AuthRoleName": "amplify-bobapal-dev-fae31-authRole",
+      "UnauthRoleArn": "arn:aws:iam::570399905115:role/amplify-bobapal-dev-fae31-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::570399905115:role/amplify-bobapal-dev-fae31-authRole",
       "Region": "us-east-2",
-      "DeploymentBucketName": "amplify-buhba-dev-5fd58-deployment",
-      "UnauthRoleName": "amplify-buhba-dev-5fd58-unauthRole",
-      "StackName": "amplify-buhba-dev-5fd58",
-      "StackId": "arn:aws:cloudformation:us-east-2:570399905115:stack/amplify-buhba-dev-5fd58/b2e2b030-e368-11f0-bf3d-06799f386895",
-      "AmplifyAppId": "dwhn86ihr7c04"
+      "DeploymentBucketName": "amplify-bobapal-dev-fae31-deployment",
+      "UnauthRoleName": "amplify-bobapal-dev-fae31-unauthRole",
+      "StackName": "amplify-bobapal-dev-fae31",
+      "StackId": "arn:aws:cloudformation:us-east-2:570399905115:stack/amplify-bobapal-dev-fae31/81b13230-e66e-11f0-b681-0a8f61fb7b45",
+      "AmplifyAppId": "d2wgmsilvzgad6"
     },
     "categories": {
       "auth": {
-        "buhbac7788c23": {}
+        "bobapal849bb214": {}
       },
       "storage": {
-        "Boba": {}
+        "bobapal": {}
       }
     }
   }

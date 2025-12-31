@@ -28,6 +28,8 @@ android/
 # Temporary files created by Metro to check the health of the file watcher
 .metro-health-check*
 
+.env.local
+
 #amplify-do-not-edit-begin
 amplify/\#current-cloud-backend
 amplify/.config/local-*
@@ -41,7 +43,7 @@ dist/
 node_modules/
 aws-exports.js
 awsconfiguration.json
-# amplifyconfiguration.json - commented out to allow CI builds
+amplifyconfiguration.json
 amplifyconfiguration.dart
 amplify-build-config.json
 amplify-gradle-config.json
@@ -49,4 +51,3 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
-.env.local

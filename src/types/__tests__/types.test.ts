@@ -65,11 +65,17 @@ describe('Type exports', () => {
         occasion: 'Celebration',
         rating: 4,
         imageUri: 'file://image.jpg',
+        latitude: 37.7749,
+        longitude: -122.4194,
+        placeId: 'ChIJ123456',
       };
 
       expect(form.flavor).toBe('Matcha');
       expect(form.price).toBe('5.99'); // Price is string in form
       expect(form.rating).toBe(4);
+      expect(form.latitude).toBe(37.7749);
+      expect(form.longitude).toBe(-122.4194);
+      expect(form.placeId).toBe('ChIJ123456');
     });
 
     it('allows null values for optional fields', () => {
@@ -80,10 +86,16 @@ describe('Type exports', () => {
         occasion: '',
         rating: null,
         imageUri: null,
+        latitude: null,
+        longitude: null,
+        placeId: null,
       };
 
       expect(emptyForm.rating).toBeNull();
       expect(emptyForm.imageUri).toBeNull();
+      expect(emptyForm.latitude).toBeNull();
+      expect(emptyForm.longitude).toBeNull();
+      expect(emptyForm.placeId).toBeNull();
     });
   });
 

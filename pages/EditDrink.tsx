@@ -36,6 +36,9 @@ const EditDrink: React.FC = () => {
     occasion: '',
     rating: null,
     imageUri: null,
+    latitude: null,
+    longitude: null,
+    placeId: null,
   });
   const [newImageUri, setNewImageUri] = useState<string | null>(null);
 
@@ -54,6 +57,9 @@ const EditDrink: React.FC = () => {
           occasion: drinkItem.occasion,
           rating: drinkItem.rating,
           imageUri: null,
+          latitude: drinkItem.latitude,
+          longitude: drinkItem.longitude,
+          placeId: drinkItem.placeId,
         });
       } catch (error) {
         console.error('Failed to fetch drink:', error);

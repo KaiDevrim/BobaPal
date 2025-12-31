@@ -71,7 +71,7 @@ const CustomSignIn: React.FC = () => {
 
   return (
     <View style={authStyles.container}>
-      <Text style={authStyles.title}>🧋 Buhba</Text>
+      <Text style={authStyles.title}>🧋 BobaPal</Text>
       <Text style={authStyles.subtitle}>Track your boba adventures</Text>
 
       <TouchableOpacity style={authStyles.googleButton} onPress={handleGoogleSignIn}>

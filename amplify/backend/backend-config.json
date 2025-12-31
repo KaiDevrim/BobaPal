@@ -1,26 +1,34 @@
 {
   "auth": {
-    "buhbac7788c23": {
+    "bobapal849bb214": {
       "customAuth": false,
       "dependsOn": [],
       "frontendAuthConfig": {
         "mfaConfiguration": "OFF",
-        "mfaTypes": ["SMS"],
+        "mfaTypes": [
+          "SMS"
+        ],
         "passwordProtectionSettings": {
           "passwordPolicyCharacters": [],
           "passwordPolicyMinLength": 8
         },
-        "signupAttributes": ["EMAIL"],
-        "socialProviders": ["GOOGLE"],
-        "usernameAttributes": [],
-        "verificationMechanisms": ["EMAIL"]
+        "signupAttributes": [],
+        "socialProviders": [
+          "GOOGLE"
+        ],
+        "usernameAttributes": [
+          "EMAIL"
+        ],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
       },
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
     }
   },
   "storage": {
-    "Boba": {
+    "bobapal": {
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
       "service": "S3"

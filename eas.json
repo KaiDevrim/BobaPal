@@ -24,6 +24,15 @@
         "APP_ENV": "development"
       }
     },
+    "development-simulator": {
+      "extends": "development",
+      "ios": {
+        "simulator": true
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
     "preview": {
       "extends": "base",
       "autoIncrement": true,

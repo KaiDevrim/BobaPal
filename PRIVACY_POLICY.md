@@ -1,15 +1,15 @@
-# Privacy Policy for Buhba
+# Privacy Policy for BobaPal
 
 **Last Updated: [DATE]**
 
 ## Introduction
 
-Welcome to Buhba ("we," "our," or "us"). We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application.
+Welcome to BobaPal ("we," "our," or "us"). We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application.
 
 ## Information We Collect
 
 ### Personal Information
-When you use Buhba, we may collect:
+When you use BobaPal, we may collect:
 - **Email address**: Used for account authentication via Google Sign-In
 - **Profile information**: Name and profile picture from your Google account
 
@@ -67,7 +67,7 @@ We retain your data as long as your account is active. Upon account deletion:
 
 ## Children's Privacy
 
-Buhba is not intended for children under 13. We do not knowingly collect information from children under 13.
+BobaPal is not intended for children under 13. We do not knowingly collect information from children under 13.
 
 ## Third-Party Services
 
