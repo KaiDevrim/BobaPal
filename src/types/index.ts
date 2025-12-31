@@ -13,6 +13,9 @@ export interface DrinkForm {
   occasion: string;
   rating: number | null;
   imageUri: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  placeId: string | null;
 }
 
 export interface DrinkData {

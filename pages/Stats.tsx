@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo, useState, memo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
-import { StatsCard, EmptyState } from '../components';
+import { StatsCard, EmptyState, VisitedLocationsMap, VisitedLocation } from '../components';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
 import type { StatsData } from '../src/types';
 
@@ -45,6 +45,37 @@ const Stats: React.FC = () => {
     };
   }, [drinks]);
 
+  // Calculate visited locations for the map
+  const visitedLocations: VisitedLocation[] = useMemo(() => {
+    const locationMap = new Map<
+      string,
+      { storeName: string; latitude: number; longitude: number; visitCount: number }
+    >();
+
+    drinks.forEach((drink) => {
+      if (drink.latitude && drink.longitude) {
+        const key = drink.placeId || `${drink.latitude},${drink.longitude}`;
+        const existing = locationMap.get(key);
+
+        if (existing) {
+          existing.visitCount += 1;
+        } else {
+          locationMap.set(key, {
+            storeName: drink.store,
+            latitude: drink.latitude,
+            longitude: drink.longitude,
+            visitCount: 1,
+          });
+        }
+      }
+    });
+
+    return Array.from(locationMap.entries()).map(([id, data]) => ({
+      id,
+      ...data,
+    }));
+  }, [drinks]);
+
   if (stats.drinkCount === 0) {
     return <EmptyState title="Your Boba Stats" message="Add more boba to see your stats" />;
   }
@@ -53,28 +84,36 @@ const Stats: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Your Boba Stats</Text>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.title}>Your Boba Stats</Text>
 
-      <View style={styles.cardsRow}>
-        <StatsCard icon="🧋" number={stats.drinkCount} label="DRINKS" />
-        <StatsCard icon="🏪" number={stats.storeCount} label="STORES" />
-      </View>
-
-      <View style={styles.cardsRow}>
-        <StatsCard icon="💰" number={`$${stats.totalSpent.toFixed(0)}`} label="SPENT" />
-        <StatsCard icon="📊" number={`$${averagePrice.toFixed(2)}`} label="AVG PRICE" />
-      </View>
-
-      {stats.topStores.length > 0 && (
-        <View style={styles.topStoresContainer}>
-          <Text style={styles.sectionTitle}>Top Stores</Text>
-          {stats.topStores.map(([store, count], index) => (
-            <Text key={store} style={styles.storeText}>
-              {index + 1}. {store} ({count} visit{count > 1 ? 's' : ''})
-            </Text>
-          ))}
+        <View style={styles.cardsRow}>
+          <StatsCard icon="🧋" number={stats.drinkCount} label="DRINKS" />
+          <StatsCard icon="🏪" number={stats.storeCount} label="STORES" />
         </View>
-      )}
+
+        <View style={styles.cardsRow}>
+          <StatsCard icon="💰" number={`$${stats.totalSpent.toFixed(0)}`} label="SPENT" />
+          <StatsCard icon="📊" number={`$${averagePrice.toFixed(2)}`} label="AVG PRICE" />
+        </View>
+
+        {stats.topStores.length > 0 && (
+          <View style={styles.topStoresContainer}>
+            <Text style={styles.sectionTitle}>Top Stores</Text>
+            {stats.topStores.map(([store, count], index) => (
+              <Text key={store} style={styles.storeText}>
+                {index + 1}. {store} ({count} visit{count > 1 ? 's' : ''})
+              </Text>
+            ))}
+          </View>
+        )}
+
+        <View style={styles.mapContainer}>
+          <VisitedLocationsMap locations={visitedLocations} height={280} />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -83,8 +122,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+  scrollContent: {
     paddingHorizontal: SPACING.xl,
     paddingTop: SPACING.xl,
+    paddingBottom: SPACING.xxl * 2,
   },
   title: {
     fontSize: FONT_SIZES.xxl,
@@ -100,7 +142,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
   },
   topStoresContainer: {
-    marginTop: SPACING.xl,
+    marginTop: SPACING.lg,
     padding: SPACING.lg,
     backgroundColor: COLORS.surface,
     borderRadius: BORDER_RADIUS.lg,
@@ -117,6 +159,9 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.md,
     color: COLORS.text.accent,
     marginBottom: SPACING.xs,
+  },
+  mapContainer: {
+    marginTop: SPACING.xl,
   },
 });
 

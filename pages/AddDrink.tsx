@@ -6,6 +6,7 @@ import database from '../database/index.native';
 import Drink from '../database/model/Drink';
 import { uploadImage } from '../services/storageService';
 import { syncToCloud } from '../services/syncService';
+import { getPlaceDetails, PlacePrediction } from '../services/placesService';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { FormField, Button, StoreAutocomplete } from '../components';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
@@ -19,6 +20,9 @@ const INITIAL_FORM: DrinkForm = {
   occasion: '',
   rating: null,
   imageUri: null,
+  latitude: null,
+  longitude: null,
+  placeId: null,
 };
 
 const AddDrink: React.FC = () => {
@@ -29,6 +33,28 @@ const AddDrink: React.FC = () => {
   const updateField = useCallback(<K extends keyof DrinkForm>(field: K, value: DrinkForm[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   }, []);
+
+  // Handle store selection from autocomplete
+  const handleStoreSelect = useCallback(
+    async (store: PlacePrediction) => {
+      setForm((prev) => ({ ...prev, store: store.name, placeId: store.placeId }));
+
+      // Fetch place details to get coordinates
+      try {
+        const details = await getPlaceDetails(store.placeId);
+        if (details) {
+          setForm((prev) => ({
+            ...prev,
+            latitude: details.latitude,
+            longitude: details.longitude,
+          }));
+        }
+      } catch (error) {
+        console.warn('Could not fetch place details:', error);
+      }
+    },
+    []
+  );
 
   const validateForm = (): string | null => {
     if (!form.flavor.trim()) return 'Please enter a flavor';
@@ -72,6 +98,9 @@ const AddDrink: React.FC = () => {
           drink.userId = user.identityId;
           drink.synced = false;
           drink.lastModified = new Date();
+          drink.latitude = form.latitude;
+          drink.longitude = form.longitude;
+          drink.placeId = form.placeId;
         });
       });
 
@@ -152,6 +181,7 @@ const AddDrink: React.FC = () => {
         <StoreAutocomplete
           value={form.store}
           onChangeText={(text: string) => updateField('store', text)}
+          onSelectStore={handleStoreSelect}
           placeholder="Search for a boba shop..."
         />
 

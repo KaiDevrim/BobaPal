@@ -7,3 +7,5 @@ export { EmptyState } from './EmptyState';
 export { LoadingState } from './LoadingState';
 export { DetailRow } from './DetailRow';
 export { default as StoreAutocomplete } from './StoreAutocomplete';
+export { default as VisitedLocationsMap } from './VisitedLocationsMap';
+export type { VisitedLocation } from './VisitedLocationsMap';

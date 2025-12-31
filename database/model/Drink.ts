@@ -15,4 +15,7 @@ export default class Drink extends Model {
   @text('user_id') userId!: string;
   @field('synced') synced!: boolean;
   @date('last_modified') lastModified!: Date;
+  @field('latitude') latitude!: number | null;
+  @field('longitude') longitude!: number | null;
+  @text('place_id') placeId!: string | null;
 }

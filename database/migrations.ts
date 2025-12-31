@@ -17,5 +17,18 @@ export default schemaMigrations({
         }),
       ],
     },
+    {
+      toVersion: 3,
+      steps: [
+        addColumns({
+          table: 'drinks',
+          columns: [
+            { name: 'latitude', type: 'number', isOptional: true },
+            { name: 'longitude', type: 'number', isOptional: true },
+            { name: 'place_id', type: 'string', isOptional: true },
+          ],
+        }),
+      ],
+    },
   ],
 });
