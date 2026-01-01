@@ -9,7 +9,9 @@
       "node": "20.18.0",
       "autoIncrement": true,
       "env": {
-        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
+        "AMPLIFY_CONFIG_DEV": "@amplify_config_dev",
+        "AMPLIFY_CONFIG_PROD": "@amplify_config_prod"
       }
     },
     "development": {
