@@ -1,4 +1,4 @@
-import { uploadData, downloadData, list } from 'aws-amplify/storage';
+import { uploadData, downloadData } from 'aws-amplify/storage';
 
 const RANKINGS_FILE = 'global/store-rankings.json';
 
@@ -33,7 +33,9 @@ export const getGlobalRankings = async (): Promise<GlobalRankings> => {
         lastUpdated: new Date().toISOString(),
       };
     }
-    console.error('Error fetching rankings:', error);
+    if (__DEV__) {
+      console.error('Error fetching rankings:', error);
+    }
     return {
       stores: [],
       lastUpdated: new Date().toISOString(),
@@ -91,7 +93,9 @@ export const recordStoreVisit = async (
 
     return rankings;
   } catch (error) {
-    console.error('Error recording store visit:', error);
+    if (__DEV__) {
+      console.error('Error recording store visit:', error);
+    }
     throw error;
   }
 };

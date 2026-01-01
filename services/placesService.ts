@@ -31,16 +31,15 @@ export const searchBobaPlaces = async (
 
   const apiKey = getGooglePlacesApiKey();
   if (!apiKey) {
-    console.warn('Google Places API key not configured');
+    if (__DEV__) {
+      console.warn('Google Places API key not configured');
+    }
     return [];
   }
 
-  // Debug: Log masked API key
+  // Debug: Log that API key is present (never log the actual key)
   if (__DEV__) {
-    const maskedKey = apiKey.length > 10
-      ? `${apiKey.substring(0, 8)}...${apiKey.substring(apiKey.length - 4)}`
-      : '[too short]';
-    console.log('🔑 Using Google Places API key:', maskedKey);
+    console.log('🔑 Google Places API key configured:', !!apiKey);
   }
 
   try {
@@ -75,7 +74,10 @@ export const searchBobaPlaces = async (
     const data = await response.json();
 
     if (data.error) {
-      console.error('Places API error:', data.error.message, data.error.status);
+      // Only log errors in development
+      if (__DEV__) {
+        console.error('Places API error:', data.error.message, data.error.status);
+      }
       return [];
     }
 
@@ -86,7 +88,9 @@ export const searchBobaPlaces = async (
       distance: undefined,
     }));
   } catch (error) {
-    console.error('Error searching places:', error);
+    if (__DEV__) {
+      console.error('Error searching places:', error);
+    }
     return [];
   }
 };
@@ -112,7 +116,9 @@ export const getPlaceDetails = async (placeId: string): Promise<PlaceDetails | n
     const data = await response.json();
 
     if (data.error) {
-      console.error('Place details error:', data.error.message);
+      if (__DEV__) {
+        console.error('Place details error:', data.error.message);
+      }
       return null;
     }
 
@@ -124,7 +130,9 @@ export const getPlaceDetails = async (placeId: string): Promise<PlaceDetails | n
       longitude: data.location?.longitude || 0,
     };
   } catch (error) {
-    console.error('Error getting place details:', error);
+    if (__DEV__) {
+      console.error('Error getting place details:', error);
+    }
     return null;
   }
 };
@@ -166,7 +174,9 @@ export const searchNearbyBobaPlaces = async (location: Coordinates): Promise<Pla
     const data = await response.json();
 
     if (data.error) {
-      console.error('Nearby search error:', data.error.message);
+      if (__DEV__) {
+        console.error('Nearby search error:', data.error.message);
+      }
       return [];
     }
 
@@ -177,7 +187,9 @@ export const searchNearbyBobaPlaces = async (location: Coordinates): Promise<Pla
       distance: undefined,
     }));
   } catch (error) {
-    console.error('Error searching nearby places:', error);
+    if (__DEV__) {
+      console.error('Error searching nearby places:', error);
+    }
     return [];
   }
 };

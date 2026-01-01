@@ -61,7 +61,9 @@ const EditDrink: React.FC = () => {
           placeId: drinkItem.placeId,
         });
       } catch (error) {
-        console.error('Failed to fetch drink:', error);
+        if (__DEV__) {
+          console.error('Failed to fetch drink:', error);
+        }
         Alert.alert('Error', 'Failed to load drink');
         navigation.goBack();
       } finally {
@@ -139,7 +141,9 @@ const EditDrink: React.FC = () => {
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } catch (e) {
-      console.error('Error updating drink:', e);
+      if (__DEV__) {
+        console.error('Error updating drink:', e);
+      }
       Alert.alert('Error', 'Failed to update drink. Please try again.');
     } finally {
       setSaving(false);
@@ -179,7 +183,9 @@ const EditDrink: React.FC = () => {
                 { text: 'OK', onPress: () => navigation.navigate('MainTabs') },
               ]);
             } catch (e) {
-              console.error('Error deleting drink:', e);
+              if (__DEV__) {
+                console.error('Error deleting drink:', e);
+              }
               Alert.alert('Error', 'Failed to delete drink.');
             } finally {
               setDeleting(false);

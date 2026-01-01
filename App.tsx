@@ -45,7 +45,11 @@ const AuthenticatedApp: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      syncFromCloud().catch(console.error);
+      syncFromCloud().catch((error) => {
+        if (__DEV__) {
+          console.error('Sync error:', error);
+        }
+      });
     }
   }, [user]);
 

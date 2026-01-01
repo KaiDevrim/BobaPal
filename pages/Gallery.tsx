@@ -26,9 +26,11 @@ const Gallery: React.FC = () => {
 
       // Prefetch first 10 images for faster initial load
       const s3Keys = allDrinks.slice(0, 10).map((d) => d.s3Key);
-      prefetchImages(s3Keys).catch(console.error);
+      prefetchImages(s3Keys).catch(() => {});
     } catch (error) {
-      console.error('Failed to fetch drinks:', error);
+      if (__DEV__) {
+        console.error('Failed to fetch drinks:', error);
+      }
     }
   }, []);
 
@@ -90,9 +92,9 @@ const Gallery: React.FC = () => {
             <Text style={styles.statNumber}>{monthlyStats.storeCount}</Text>
             <Text style={styles.statLabel}>STORES</Text>
           </View>
-          <View style={[styles.statCard, styles.statCardAccent]}>
-            <Text style={styles.statNumberAccent}>${monthlyStats.totalSpent.toFixed(2)}</Text>
-            <Text style={styles.statLabelAccent}>SPENT</Text>
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>${monthlyStats.totalSpent.toFixed(2)}</Text>
+            <Text style={styles.statLabel}>SPENT</Text>
           </View>
         </View>
         <Text style={styles.sectionTitle}>Your Recent Drinks</Text>
@@ -157,28 +159,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
   },
-  statCardAccent: {
-    backgroundColor: COLORS.backgroundAlt,
-    borderColor: COLORS.primary,
-    borderWidth: 1.5,
-  },
   statNumber: {
     fontSize: FONT_SIZES.xxl,
     fontWeight: 'bold',
     color: COLORS.text.accent,
   },
-  statNumberAccent: {
-    fontSize: FONT_SIZES.xl,
-    fontWeight: 'bold',
-    color: COLORS.text.accent,
-  },
   statLabel: {
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.text.secondary,
-    marginTop: SPACING.xs,
-    fontWeight: '500',
-  },
-  statLabelAccent: {
     fontSize: FONT_SIZES.xs,
     color: COLORS.text.secondary,
     marginTop: SPACING.xs,

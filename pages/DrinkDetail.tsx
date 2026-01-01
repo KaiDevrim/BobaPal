@@ -29,7 +29,9 @@ const DrinkDetail: React.FC = () => {
         const drinkItem = await database.collections.get<Drink>('drinks').find(drinkId);
         setDrink(drinkItem);
       } catch (error) {
-        console.error('Failed to fetch drink:', error);
+        if (__DEV__) {
+          console.error('Failed to fetch drink:', error);
+        }
       } finally {
         setLoading(false);
       }

@@ -1,17 +1,13 @@
 import { Amplify } from 'aws-amplify';
 import devConfig from '../amplifyconfiguration.json';
-// Uncomment for production:
-// import prodConfig from '../amplifyconfiguration.prod.json';
+import prodConfig from '../amplifyconfiguration.prod.json';
 
 /**
  * Get the appropriate Amplify configuration based on environment
  */
 const getAmplifyConfig = () => {
-  // TODO: When ready for production, uncomment the following:
-  // const isProduction = process.env.APP_ENV === 'production';
-  // return isProduction ? prodConfig : devConfig;
-
-  return devConfig;
+  const isProduction = process.env.APP_ENV === 'production';
+  return isProduction ? prodConfig : devConfig;
 };
 
 /**

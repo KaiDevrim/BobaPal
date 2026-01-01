@@ -41,14 +41,12 @@ describe('placesService', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         json: () =>
           Promise.resolve({
-            status: 'OK',
-            predictions: [
+            places: [
               {
-                place_id: 'place1',
-                structured_formatting: {
-                  main_text: 'Boba Guys',
-                  secondary_text: '123 Main St',
-                },
+                id: 'place1',
+                displayName: { text: 'Boba Guys' },
+                formattedAddress: '123 Main St',
+                location: { latitude: 37.77, longitude: -122.41 },
               },
             ],
           }),
@@ -57,7 +55,8 @@ describe('placesService', () => {
       const result = await searchBobaPlaces('boba', { latitude: 37.77, longitude: -122.41 });
 
       expect(global.fetch).toHaveBeenCalled();
-      expect((global.fetch as jest.Mock).mock.calls[0][0]).toContain('location=37.77,-122.41');
+      const fetchCall = (global.fetch as jest.Mock).mock.calls[0];
+      expect(fetchCall[0]).toContain('places.googleapis.com');
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe('Boba Guys');
     });
@@ -68,8 +67,10 @@ describe('placesService', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         json: () =>
           Promise.resolve({
-            status: 'REQUEST_DENIED',
-            error_message: 'Invalid key',
+            error: {
+              message: 'Invalid key',
+              status: 'INVALID_ARGUMENT',
+            },
           }),
       });
 
@@ -77,14 +78,13 @@ describe('placesService', () => {
       expect(result).toEqual([]);
     });
 
-    it('handles ZERO_RESULTS status', async () => {
+    it('handles empty results', async () => {
       mockApiKey = 'test-key';
 
       (global.fetch as jest.Mock).mockResolvedValue({
         json: () =>
           Promise.resolve({
-            status: 'ZERO_RESULTS',
-            predictions: [],
+            places: [],
           }),
       });
 
@@ -115,16 +115,12 @@ describe('placesService', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         json: () =>
           Promise.resolve({
-            status: 'OK',
-            result: {
-              name: 'Boba Guys',
-              formatted_address: '123 Main St, San Francisco, CA',
-              geometry: {
-                location: {
-                  lat: 37.7749,
-                  lng: -122.4194,
-                },
-              },
+            id: 'place123',
+            displayName: { text: 'Boba Guys' },
+            formattedAddress: '123 Main St, San Francisco, CA',
+            location: {
+              latitude: 37.7749,
+              longitude: -122.4194,
             },
           }),
       });
@@ -146,7 +142,10 @@ describe('placesService', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         json: () =>
           Promise.resolve({
-            status: 'NOT_FOUND',
+            error: {
+              message: 'Not found',
+              status: 'NOT_FOUND',
+            },
           }),
       });
 
@@ -168,17 +167,18 @@ describe('placesService', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         json: () =>
           Promise.resolve({
-            status: 'OK',
-            results: [
+            places: [
               {
-                place_id: 'nearby1',
-                name: 'Nearby Boba',
-                vicinity: '456 Oak St',
+                id: 'nearby1',
+                displayName: { text: 'Nearby Boba' },
+                formattedAddress: '456 Oak St',
+                location: { latitude: 37.77, longitude: -122.41 },
               },
               {
-                place_id: 'nearby2',
-                name: 'Tea House',
-                vicinity: '789 Pine St',
+                id: 'nearby2',
+                displayName: { text: 'Tea House' },
+                formattedAddress: '789 Pine St',
+                location: { latitude: 37.78, longitude: -122.42 },
               },
             ],
           }),
@@ -191,26 +191,37 @@ describe('placesService', () => {
       expect(result[1].name).toBe('Tea House');
     });
 
-    it('limits results to 10', async () => {
+    it('handles empty results', async () => {
       mockApiKey = 'test-key';
-
-      const manyResults = Array.from({ length: 20 }, (_, i) => ({
-        place_id: `place${i}`,
-        name: `Place ${i}`,
-        vicinity: `Address ${i}`,
-      }));
 
       (global.fetch as jest.Mock).mockResolvedValue({
         json: () =>
           Promise.resolve({
-            status: 'OK',
-            results: manyResults,
+            places: [],
           }),
       });
 
       const result = await searchNearbyBobaPlaces({ latitude: 37.77, longitude: -122.41 });
 
-      expect(result).toHaveLength(10);
+      expect(result).toEqual([]);
+    });
+
+    it('handles API error', async () => {
+      mockApiKey = 'test-key';
+
+      (global.fetch as jest.Mock).mockResolvedValue({
+        json: () =>
+          Promise.resolve({
+            error: {
+              message: 'Error',
+              status: 'ERROR',
+            },
+          }),
+      });
+
+      const result = await searchNearbyBobaPlaces({ latitude: 37.77, longitude: -122.41 });
+
+      expect(result).toEqual([]);
     });
   });
 });

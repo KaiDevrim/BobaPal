@@ -38,7 +38,9 @@ export const getCachedImageUrl = async (s3Key: string | null): Promise<string | 
     urlCache.set(s3Key, { url, expiry: now + CACHE_DURATION_MS });
     return url;
   } catch (error) {
-    console.error('Failed to get image URL:', error);
+    if (__DEV__) {
+      console.error('Failed to get image URL:', error);
+    }
     return null;
   }
 };

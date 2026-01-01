@@ -101,7 +101,9 @@ export const syncFromCloud = async (): Promise<void> => {
       }
     });
   } catch (error) {
-    // No backup found is not an error, just means first time user
-    console.log('No backup found or error syncing:', error);
+    // No backup found is expected for first-time users
+    if (__DEV__) {
+      console.log('No backup found or error syncing:', error);
+    }
   }
 };

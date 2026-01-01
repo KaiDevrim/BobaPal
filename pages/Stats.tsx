@@ -15,7 +15,9 @@ const Stats: React.FC = () => {
       const allDrinks = await database.collections.get<Drink>('drinks').query().fetch();
       setDrinks(allDrinks);
     } catch (error) {
-      console.error('Failed to fetch drinks:', error);
+      if (__DEV__) {
+        console.error('Failed to fetch drinks:', error);
+      }
     }
   }, []);
 

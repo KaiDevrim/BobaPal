@@ -20,7 +20,9 @@ export const getCurrentLocation = async (): Promise<Coordinates | null> => {
   try {
     const hasPermission = await requestLocationPermission();
     if (!hasPermission) {
-      console.warn('Location permission not granted');
+      if (__DEV__) {
+        console.warn('Location permission not granted');
+      }
       return null;
     }
 
@@ -33,7 +35,9 @@ export const getCurrentLocation = async (): Promise<Coordinates | null> => {
       longitude: location.coords.longitude,
     };
   } catch (error) {
-    console.error('Error getting location:', error);
+    if (__DEV__) {
+      console.error('Error getting location:', error);
+    }
     return null;
   }
 };
@@ -58,7 +62,9 @@ export const getLastKnownLocation = async (): Promise<Coordinates | null> => {
       longitude: location.coords.longitude,
     };
   } catch (error) {
-    console.error('Error getting last known location:', error);
+    if (__DEV__) {
+      console.error('Error getting last known location:', error);
+    }
     return null;
   }
 };
