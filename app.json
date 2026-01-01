@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "BobaPal",
-    "slug": "BobaPal",
+    "slug": "bobapal",
     "version": "1.0.0",
     "scheme": "bobapal",
     "orientation": "portrait",
@@ -12,7 +12,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#FFF8F0"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "tech.devrim.bobapal",
@@ -55,7 +57,10 @@
               "pathPrefix": "/"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -73,7 +78,10 @@
             "extraPods": [
               {
                 "name": "simdjson",
-                "configurations": ["Debug", "Release"],
+                "configurations": [
+                  "Debug",
+                  "Release"
+                ],
                 "path": "../node_modules/@nozbe/simdjson",
                 "modular_headers": true
               }
@@ -88,7 +96,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "caa3e7d5-67e3-4334-8132-87bfe37c831b"
+        "projectId": "7b1971c6-1d0a-41d8-8177-2a7419ad8c5a"
       }
     },
     "owner": "kaidevrim"
