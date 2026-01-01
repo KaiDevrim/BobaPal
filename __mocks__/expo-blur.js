@@ -1,4 +1,4 @@
--const React = require('react');
+const React = require('react');
 const { View } = require('react-native');
 
 const BlurView = jest.fn().mockImplementation(({ children, ...props }) => {
@@ -8,4 +8,3 @@ const BlurView = jest.fn().mockImplementation(({ children, ...props }) => {
 module.exports = {
   BlurView,
 };
-
