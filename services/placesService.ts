@@ -16,8 +16,10 @@ export interface PlaceDetails {
   longitude: number;
 }
 
+const PLACES_API_BASE = 'https://places.googleapis.com/v1';
+
 /**
- * Search for boba/bubble tea places near a location
+ * Search for boba/bubble tea places near a location using Places API (New)
  */
 export const searchBobaPlaces = async (
   query: string,
@@ -33,32 +35,55 @@ export const searchBobaPlaces = async (
     return [];
   }
 
+  // Debug: Log masked API key
+  if (__DEV__) {
+    const maskedKey = apiKey.length > 10
+      ? `${apiKey.substring(0, 8)}...${apiKey.substring(apiKey.length - 4)}`
+      : '[too short]';
+    console.log('🔑 Using Google Places API key:', maskedKey);
+  }
+
   try {
-    let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query)}&types=establishment&key=${apiKey}`;
+    const requestBody: Record<string, unknown> = {
+      textQuery: `${query} boba tea`,
+      maxResultCount: 10,
+    };
 
     // Add location bias if available
     if (location) {
-      url += `&location=${location.latitude},${location.longitude}&radius=10000`;
+      requestBody.locationBias = {
+        circle: {
+          center: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+          },
+          radius: 10000.0,
+        },
+      };
     }
 
-    // Add keyword to prioritize boba/tea shops
-    url += `&keyword=boba|bubble tea|tea shop|milk tea`;
+    const response = await fetch(`${PLACES_API_BASE}/places:searchText`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location',
+      },
+      body: JSON.stringify(requestBody),
+    });
 
-    const response = await fetch(url);
     const data = await response.json();
 
-    if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-      console.error('Places API error:', data.status, data.error_message);
+    if (data.error) {
+      console.error('Places API error:', data.error.message, data.error.status);
       return [];
     }
 
-    return (data.predictions || []).map((prediction: any) => ({
-      placeId: prediction.place_id,
-      name: prediction.structured_formatting?.main_text || prediction.description,
-      address: prediction.structured_formatting?.secondary_text || '',
-      distance: prediction.distance_meters
-        ? `${(prediction.distance_meters / 1000).toFixed(1)} km`
-        : undefined,
+    return (data.places || []).map((place: Record<string, unknown>) => ({
+      placeId: (place.id as string) || '',
+      name: (place.displayName as Record<string, string>)?.text || '',
+      address: (place.formattedAddress as string) || '',
+      distance: undefined,
     }));
   } catch (error) {
     console.error('Error searching places:', error);
@@ -67,7 +92,7 @@ export const searchBobaPlaces = async (
 };
 
 /**
- * Get details for a specific place
+ * Get details for a specific place using Places API (New)
  */
 export const getPlaceDetails = async (placeId: string): Promise<PlaceDetails | null> => {
   const apiKey = getGooglePlacesApiKey();
@@ -76,23 +101,27 @@ export const getPlaceDetails = async (placeId: string): Promise<PlaceDetails | n
   }
 
   try {
-    const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,geometry&key=${apiKey}`;
+    const response = await fetch(`${PLACES_API_BASE}/places/${placeId}`, {
+      method: 'GET',
+      headers: {
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask': 'id,displayName,formattedAddress,location',
+      },
+    });
 
-    const response = await fetch(url);
     const data = await response.json();
 
-    if (data.status !== 'OK') {
-      console.error('Place details error:', data.status);
+    if (data.error) {
+      console.error('Place details error:', data.error.message);
       return null;
     }
 
-    const result = data.result;
     return {
-      placeId,
-      name: result.name,
-      address: result.formatted_address,
-      latitude: result.geometry.location.lat,
-      longitude: result.geometry.location.lng,
+      placeId: data.id || placeId,
+      name: data.displayName?.text || '',
+      address: data.formattedAddress || '',
+      latitude: data.location?.latitude || 0,
+      longitude: data.location?.longitude || 0,
     };
   } catch (error) {
     console.error('Error getting place details:', error);
@@ -101,7 +130,7 @@ export const getPlaceDetails = async (placeId: string): Promise<PlaceDetails | n
 };
 
 /**
- * Search for nearby boba places without a query (discovery)
+ * Search for nearby boba places without a query (discovery) using Places API (New)
  */
 export const searchNearbyBobaPlaces = async (location: Coordinates): Promise<PlacePrediction[]> => {
   const apiKey = getGooglePlacesApiKey();
@@ -110,20 +139,41 @@ export const searchNearbyBobaPlaces = async (location: Coordinates): Promise<Pla
   }
 
   try {
-    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.latitude},${location.longitude}&radius=5000&keyword=boba|bubble tea|milk tea&type=cafe&key=${apiKey}`;
+    const requestBody = {
+      includedTypes: ['cafe', 'restaurant', 'food'],
+      maxResultCount: 10,
+      locationRestriction: {
+        circle: {
+          center: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+          },
+          radius: 5000.0,
+        },
+      },
+    };
 
-    const response = await fetch(url);
+    const response = await fetch(`${PLACES_API_BASE}/places:searchNearby`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
     const data = await response.json();
 
-    if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-      console.error('Nearby search error:', data.status);
+    if (data.error) {
+      console.error('Nearby search error:', data.error.message);
       return [];
     }
 
-    return (data.results || []).slice(0, 10).map((place: any) => ({
-      placeId: place.place_id,
-      name: place.name,
-      address: place.vicinity,
+    return (data.places || []).map((place: Record<string, unknown>) => ({
+      placeId: (place.id as string) || '',
+      name: (place.displayName as Record<string, string>)?.text || '',
+      address: (place.formattedAddress as string) || '',
       distance: undefined,
     }));
   } catch (error) {

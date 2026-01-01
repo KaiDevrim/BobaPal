@@ -38,5 +38,19 @@ export const hasSecret = (key: keyof AppSecrets): boolean => {
  * Returns empty string if not configured (API calls will gracefully fail)
  */
 export const getGooglePlacesApiKey = (): string => {
-  return process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY || '';
+  const key = process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY || '';
+
+  // Debug logging - remove in production
+  if (__DEV__) {
+    if (!key) {
+      console.warn('⚠️ EXPO_PUBLIC_GOOGLE_PLACES_API_KEY is not set');
+      console.log('📋 Available env vars with EXPO_PUBLIC:',
+        Object.keys(process.env).filter(k => k.startsWith('EXPO_PUBLIC_'))
+      );
+    } else {
+      console.log('✅ Google Places API key loaded, length:', key.length);
+    }
+  }
+
+  return key;
 };
