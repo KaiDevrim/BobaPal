@@ -15,9 +15,7 @@
 // 1. EXPO_PUBLIC_ env var - available locally (Expo auto-loads these)
 // 2. EAS Secret (GOOGLE_PLACES_API_KEY) - available during EAS builds
 const googlePlacesApiKey =
-  process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY ||
-  process.env.GOOGLE_PLACES_API_KEY ||
-  '';
+  process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY || process.env.GOOGLE_PLACES_API_KEY || '';
 
 export default {
   expo: {
@@ -39,8 +37,7 @@ export default {
       bundleIdentifier: 'tech.devrim.bobapal',
       buildNumber: '1',
       infoPlist: {
-        NSCameraUsageDescription:
-          'BobaPal needs camera access to take photos of your boba drinks.',
+        NSCameraUsageDescription: 'BobaPal needs camera access to take photos of your boba drinks.',
         NSPhotoLibraryUsageDescription:
           'BobaPal needs photo library access to select photos of your boba drinks.',
         NSLocationWhenInUseUsageDescription:
@@ -121,4 +118,3 @@ export default {
     owner: 'kaidevrim',
   },
 };
-
