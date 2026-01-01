@@ -1,13 +1,19 @@
-import React, { useCallback, useState, useEffect, memo } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useCallback, useState, useMemo, memo } from 'react';
+import { View, FlatList, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
 import { MyDrinkCard, EmptyState } from '../components';
 import { RootStackParamList } from '../src/types/navigation';
-import { SPACING } from '../src/constants/theme';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
 import { prefetchImages } from '../services/imageCacheService';
+
+interface MonthlyStats {
+  drinkCount: number;
+  storeCount: number;
+  totalSpent: number;
+}
 
 const Gallery: React.FC = () => {
   const [drinks, setDrinks] = useState<Drink[]>([]);
@@ -32,6 +38,27 @@ const Gallery: React.FC = () => {
     }, [fetchDrinks])
   );
 
+  // Calculate monthly stats
+  const monthlyStats: MonthlyStats = useMemo(() => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const thisMonthDrinks = drinks.filter((drink) => {
+      const drinkDate = new Date(drink.date);
+      return drinkDate.getMonth() === currentMonth && drinkDate.getFullYear() === currentYear;
+    });
+
+    const stores = new Set(thisMonthDrinks.map((d) => d.store));
+    const totalSpent = thisMonthDrinks.reduce((sum, d) => sum + d.price, 0);
+
+    return {
+      drinkCount: thisMonthDrinks.length,
+      storeCount: stores.size,
+      totalSpent,
+    };
+  }, [drinks]);
+
   const handleDrinkPress = useCallback(
     (drinkId: string) => {
       navigation.navigate('DrinkDetail', { drinkId });
@@ -49,6 +76,30 @@ const Gallery: React.FC = () => {
   );
 
   const keyExtractor = useCallback((item: Drink) => item.id, []);
+
+  const renderHeader = useCallback(
+    () => (
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerTitle}>This Month</Text>
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>{monthlyStats.drinkCount}</Text>
+            <Text style={styles.statLabel}>DRINKS</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>{monthlyStats.storeCount}</Text>
+            <Text style={styles.statLabel}>STORES</Text>
+          </View>
+          <View style={[styles.statCard, styles.statCardAccent]}>
+            <Text style={styles.statNumberAccent}>${monthlyStats.totalSpent.toFixed(2)}</Text>
+            <Text style={styles.statLabelAccent}>SPENT</Text>
+          </View>
+        </View>
+        <Text style={styles.sectionTitle}>Your Recent Drinks</Text>
+      </View>
+    ),
+    [monthlyStats]
+  );
 
   if (drinks.length === 0) {
     return <EmptyState title="Your Boba Gallery" message="Add some boba to see your collection!" />;
@@ -68,6 +119,7 @@ const Gallery: React.FC = () => {
         maxToRenderPerBatch={10}
         windowSize={5}
         initialNumToRender={6}
+        ListHeaderComponent={renderHeader}
       />
     </View>
   );
@@ -76,11 +128,70 @@ const Gallery: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: SPACING.lg,
+    backgroundColor: COLORS.background,
+    paddingHorizontal: SPACING.lg,
     paddingTop: 50,
+  },
+  headerContainer: {
+    marginBottom: SPACING.lg,
+  },
+  headerTitle: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '600',
+    color: COLORS.text.primary,
+    marginBottom: SPACING.md,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+    marginBottom: SPACING.xl,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: COLORS.surface,
+    borderRadius: BORDER_RADIUS.md,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.sm,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  statCardAccent: {
+    backgroundColor: COLORS.backgroundAlt,
+    borderColor: COLORS.primary,
+    borderWidth: 1.5,
+  },
+  statNumber: {
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: 'bold',
+    color: COLORS.text.accent,
+  },
+  statNumberAccent: {
+    fontSize: FONT_SIZES.xl,
+    fontWeight: 'bold',
+    color: COLORS.text.accent,
+  },
+  statLabel: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.text.secondary,
+    marginTop: SPACING.xs,
+    fontWeight: '500',
+  },
+  statLabelAccent: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.text.secondary,
+    marginTop: SPACING.xs,
+    fontWeight: '500',
+  },
+  sectionTitle: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '600',
+    color: COLORS.text.primary,
+    marginBottom: SPACING.md,
   },
   row: {
     justifyContent: 'space-between',
+    marginBottom: SPACING.xs,
   },
   list: {
     paddingBottom: 100,
