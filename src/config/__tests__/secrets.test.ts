@@ -3,7 +3,7 @@
 describe('secrets config', () => {
   describe('getSecrets', () => {
     const mockGetSecrets = () => ({
-      googlePlacesApiKey: process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY || null,
+      googlePlacesApiKey: process.env.GOOGLE_PLACES_API_KEY || null,
     });
 
     it('returns object with googlePlacesApiKey', () => {
@@ -12,13 +12,13 @@ describe('secrets config', () => {
     });
 
     it('returns null when env var is not set', () => {
-      const originalEnv = process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY;
-      delete process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY;
+      const originalEnv = process.env.GOOGLE_PLACES_API_KEY;
+      delete process.env.GOOGLE_PLACES_API_KEY;
 
       const secrets = mockGetSecrets();
       expect(secrets.googlePlacesApiKey).toBeNull();
 
-      process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = originalEnv;
+      process.env.GOOGLE_PLACES_API_KEY = originalEnv;
     });
   });
 
@@ -45,27 +45,27 @@ describe('secrets config', () => {
 
   describe('getGooglePlacesApiKey', () => {
     const getGooglePlacesApiKey = (): string => {
-      return process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY || '';
+      return process.env.GOOGLE_PLACES_API_KEY || '';
     };
 
     it('returns empty string when not set', () => {
-      const originalEnv = process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY;
-      delete process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY;
+      const originalEnv = process.env.GOOGLE_PLACES_API_KEY;
+      delete process.env.GOOGLE_PLACES_API_KEY;
 
       const key = getGooglePlacesApiKey();
       expect(key).toBe('');
 
-      process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = originalEnv;
+      process.env.GOOGLE_PLACES_API_KEY = originalEnv;
     });
 
     it('returns key when set', () => {
-      const originalEnv = process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY;
-      process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = 'test-api-key-123';
+      const originalEnv = process.env.GOOGLE_PLACES_API_KEY;
+      process.env.GOOGLE_PLACES_API_KEY = 'test-api-key-123';
 
       const key = getGooglePlacesApiKey();
       expect(key).toBe('test-api-key-123');
 
-      process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY = originalEnv;
+      process.env.GOOGLE_PLACES_API_KEY = originalEnv;
     });
   });
 });
