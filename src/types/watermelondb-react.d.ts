@@ -16,4 +16,3 @@ declare module '@nozbe/watermelondb/DatabaseProvider' {
     Component: ComponentType<P>
   ): ComponentType<Omit<P, 'database'>>;
 }
-

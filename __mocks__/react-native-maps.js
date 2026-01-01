@@ -16,4 +16,3 @@ module.exports = {
   PROVIDER_GOOGLE: 'google',
   PROVIDER_DEFAULT: null,
 };
-

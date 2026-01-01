@@ -41,10 +41,7 @@ const MyDrinkCard: React.FC<MyDrinkCardProps> = memo(({ title, date, s3Key }) =>
         transition={200}
         cachePolicy="disk"
       />
-      <LinearGradient
-        colors={['transparent', 'rgba(0,0,0,0.7)']}
-        style={styles.gradient}
-      />
+      <LinearGradient colors={['transparent', 'rgba(0,0,0,0.7)']} style={styles.gradient} />
       <View style={styles.contentOverlay}>
         <View style={styles.textContainer}>
           <Text style={styles.title} numberOfLines={2}>

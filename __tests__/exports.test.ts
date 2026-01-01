@@ -141,4 +141,3 @@ describe('Hooks index exports', () => {
     expect(expectedHooks).toContain('useS3Image');
   });
 });
-

@@ -69,4 +69,3 @@ describe('secrets config', () => {
     });
   });
 });
-

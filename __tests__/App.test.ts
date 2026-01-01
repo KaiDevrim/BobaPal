@@ -93,4 +93,3 @@ describe('Authentication flow', () => {
     });
   });
 });
-

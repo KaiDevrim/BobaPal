@@ -3,7 +3,13 @@ import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
-import { StatsCard, EmptyState, VisitedLocationsMap, VisitedLocation, GradientBackground } from '../components';
+import {
+  StatsCard,
+  EmptyState,
+  VisitedLocationsMap,
+  VisitedLocation,
+  GradientBackground,
+} from '../components';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
 import type { StatsData } from '../src/types';
 
@@ -85,9 +91,7 @@ const Stats: React.FC = () => {
 
   return (
     <GradientBackground>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>Your Boba Stats</Text>
 
         <View style={styles.cardsRow}>

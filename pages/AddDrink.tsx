@@ -34,26 +34,23 @@ const AddDrink: React.FC = () => {
   }, []);
 
   // Handle store selection from autocomplete
-  const handleStoreSelect = useCallback(
-    async (store: PlacePrediction) => {
-      setForm((prev) => ({ ...prev, store: store.name, placeId: store.placeId }));
+  const handleStoreSelect = useCallback(async (store: PlacePrediction) => {
+    setForm((prev) => ({ ...prev, store: store.name, placeId: store.placeId }));
 
-      // Fetch place details to get coordinates
-      try {
-        const details = await getPlaceDetails(store.placeId);
-        if (details) {
-          setForm((prev) => ({
-            ...prev,
-            latitude: details.latitude,
-            longitude: details.longitude,
-          }));
-        }
-      } catch (error) {
-        console.warn('Could not fetch place details:', error);
+    // Fetch place details to get coordinates
+    try {
+      const details = await getPlaceDetails(store.placeId);
+      if (details) {
+        setForm((prev) => ({
+          ...prev,
+          latitude: details.latitude,
+          longitude: details.longitude,
+        }));
       }
-    },
-    []
-  );
+    } catch (error) {
+      console.warn('Could not fetch place details:', error);
+    }
+  }, []);
 
   const validateForm = (): string | null => {
     if (!form.flavor.trim()) return 'Please enter a flavor';

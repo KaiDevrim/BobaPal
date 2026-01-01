@@ -17,7 +17,11 @@ const DEFAULT_EDGES: Edge[] = ['top', 'bottom'];
 const GradientBackground: React.FC<GradientBackgroundProps> = memo(
   ({ children, style, edges = DEFAULT_EDGES }) => {
     return (
-      <LinearGradient colors={[...GRADIENT_COLORS]} style={[styles.gradient, style]} start={{ x: 0, y: 0 }} end={{ x: 0.5, y: 1 }}>
+      <LinearGradient
+        colors={[...GRADIENT_COLORS]}
+        style={[styles.gradient, style]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0.5, y: 1 }}>
         <SafeAreaView style={styles.safeArea} edges={edges}>
           {children}
         </SafeAreaView>
@@ -38,4 +42,3 @@ const styles = StyleSheet.create({
 });
 
 export default GradientBackground;
-

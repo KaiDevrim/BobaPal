@@ -132,12 +132,9 @@ describe('VisitedLocationsMap', () => {
         { store: 'Store 3', latitude: 37.7849, longitude: -122.4094 },
       ];
 
-      const locationsWithCoords = drinks.filter(
-        (d) => d.latitude !== null && d.longitude !== null
-      );
+      const locationsWithCoords = drinks.filter((d) => d.latitude !== null && d.longitude !== null);
 
       expect(locationsWithCoords.length).toBe(2);
     });
   });
 });
-

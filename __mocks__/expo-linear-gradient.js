@@ -8,4 +8,3 @@ const LinearGradient = jest.fn().mockImplementation(({ children, ...props }) => 
 module.exports = {
   LinearGradient,
 };
-

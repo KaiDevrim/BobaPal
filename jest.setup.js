@@ -175,4 +175,3 @@ console.log = (...args) => {
   if (shouldSuppress(args)) return;
   originalLog.apply(console, args);
 };
-

@@ -10,7 +10,13 @@ import { uploadImage, deleteImage } from '../services/storageService';
 import { syncToCloud } from '../services/syncService';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { useS3Image } from '../hooks/useS3Image';
-import { FormField, Button, LoadingState, StoreAutocomplete, GradientBackground } from '../components';
+import {
+  FormField,
+  Button,
+  LoadingState,
+  StoreAutocomplete,
+  GradientBackground,
+} from '../components';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
 import { RATINGS } from '../src/constants';
 import { RootStackParamList } from '../src/types/navigation';

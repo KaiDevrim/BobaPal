@@ -5,7 +5,11 @@ describe('MyDrinkCard', () => {
     const formatDate = (dateString: string): string => {
       try {
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' });
+        return date.toLocaleDateString('en-US', {
+          month: 'numeric',
+          day: 'numeric',
+          year: '2-digit',
+        });
       } catch {
         return dateString;
       }
@@ -85,9 +89,12 @@ describe('MyDrinkCard', () => {
     });
 
     it('s3Key can be a string', () => {
-      const props: MyDrinkCardProps = { title: 'Test', date: '2024-12-31', s3Key: 'drinks/image.jpg' };
+      const props: MyDrinkCardProps = {
+        title: 'Test',
+        date: '2024-12-31',
+        s3Key: 'drinks/image.jpg',
+      };
       expect(props.s3Key).toBe('drinks/image.jpg');
     });
   });
 });
-
