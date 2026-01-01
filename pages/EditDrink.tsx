@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect, memo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Alert, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import * as ImagePicker from 'expo-image-picker';
@@ -11,7 +10,7 @@ import { uploadImage, deleteImage } from '../services/storageService';
 import { syncToCloud } from '../services/syncService';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { useS3Image } from '../hooks/useS3Image';
-import { FormField, Button, LoadingState, StoreAutocomplete } from '../components';
+import { FormField, Button, LoadingState, StoreAutocomplete, GradientBackground } from '../components';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
 import { RATINGS } from '../src/constants';
 import { RootStackParamList } from '../src/types/navigation';
@@ -228,9 +227,11 @@ const EditDrink: React.FC = () => {
 
   if (!drink) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <Text>Drink not found</Text>
-      </SafeAreaView>
+      <GradientBackground>
+        <View style={styles.loadingContainer}>
+          <Text>Drink not found</Text>
+        </View>
+      </GradientBackground>
     );
   }
 
@@ -242,7 +243,7 @@ const EditDrink: React.FC = () => {
       : require('../assets/boba.jpg');
 
   return (
-    <SafeAreaView style={styles.container}>
+    <GradientBackground>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -324,20 +325,15 @@ const EditDrink: React.FC = () => {
           style={styles.deleteButton}
         />
       </ScrollView>
-    </SafeAreaView>
+    </GradientBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
   },
   scrollContent: {
     alignItems: 'center',

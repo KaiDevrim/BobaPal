@@ -1,10 +1,9 @@
 import React, { useCallback, useMemo, useState, memo } from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
-import { StatsCard, EmptyState, VisitedLocationsMap, VisitedLocation } from '../components';
+import { StatsCard, EmptyState, VisitedLocationsMap, VisitedLocation, GradientBackground } from '../components';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
 import type { StatsData } from '../src/types';
 
@@ -83,7 +82,7 @@ const Stats: React.FC = () => {
   const averagePrice = stats.totalSpent / stats.drinkCount;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <GradientBackground>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}>
@@ -101,7 +100,7 @@ const Stats: React.FC = () => {
 
         {stats.topStores.length > 0 && (
           <View style={styles.topStoresContainer}>
-            <Text style={styles.sectionTitle}>Top Stores</Text>
+            <Text style={styles.sectionTitle}>Your Top Stores</Text>
             {stats.topStores.map(([store, count], index) => (
               <Text key={store} style={styles.storeText}>
                 {index + 1}. {store} ({count} visit{count > 1 ? 's' : ''})
@@ -114,15 +113,11 @@ const Stats: React.FC = () => {
           <VisitedLocationsMap locations={visitedLocations} height={280} />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </GradientBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
   scrollContent: {
     paddingHorizontal: SPACING.xl,
     paddingTop: SPACING.xl,

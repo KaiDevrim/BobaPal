@@ -4,7 +4,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
-import { MyDrinkCard, EmptyState } from '../components';
+import { MyDrinkCard, EmptyState, GradientBackground } from '../components';
 import { RootStackParamList } from '../src/types/navigation';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
 import { prefetchImages } from '../services/imageCacheService';
@@ -106,29 +106,30 @@ const Gallery: React.FC = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={drinks}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-        removeClippedSubviews
-        maxToRenderPerBatch={10}
-        windowSize={5}
-        initialNumToRender={6}
-        ListHeaderComponent={renderHeader}
-      />
-    </View>
+    <GradientBackground>
+      <View style={styles.container}>
+        <FlatList
+          data={drinks}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          removeClippedSubviews
+          maxToRenderPerBatch={10}
+          windowSize={5}
+          initialNumToRender={6}
+          ListHeaderComponent={renderHeader}
+        />
+      </View>
+    </GradientBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
     paddingHorizontal: SPACING.lg,
     paddingTop: 50,
   },

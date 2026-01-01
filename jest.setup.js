@@ -80,9 +80,16 @@ jest.mock('@nozbe/watermelondb', () => ({
   },
 }));
 
-jest.mock('@nozbe/watermelondb/react', () => ({
-  DatabaseProvider: ({ children }) => children,
-}));
+jest.mock('@nozbe/watermelondb/DatabaseProvider', () => {
+  const React = require('react');
+  return {
+    __esModule: true,
+    default: ({ children }) => children,
+    DatabaseContext: React.createContext(null),
+    DatabaseConsumer: ({ children }) => children(null),
+    withDatabase: (Component) => Component,
+  };
+});
 
 jest.mock('@nozbe/watermelondb/decorators', () => ({
   field: () => () => {},

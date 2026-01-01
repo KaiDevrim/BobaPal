@@ -1,6 +1,5 @@
 import React, { useState, useCallback, memo } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View, Alert, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
@@ -8,7 +7,7 @@ import { uploadImage } from '../services/storageService';
 import { syncToCloud } from '../services/syncService';
 import { getPlaceDetails, PlacePrediction } from '../services/placesService';
 import { useCurrentUser } from '../hooks/useCurrentUser';
-import { FormField, Button, StoreAutocomplete } from '../components';
+import { FormField, Button, StoreAutocomplete, GradientBackground } from '../components';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
 import { RATINGS, DEFAULT_IMAGES } from '../src/constants';
 import type { DrinkForm } from '../src/types';
@@ -146,7 +145,7 @@ const AddDrink: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <GradientBackground>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -213,15 +212,11 @@ const AddDrink: React.FC = () => {
           style={styles.submitButton}
         />
       </ScrollView>
-    </SafeAreaView>
+    </GradientBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
   scrollContent: {
     alignItems: 'center',
     paddingHorizontal: SPACING.xl,

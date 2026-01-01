@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import GradientBackground from './GradientBackground';
 import { COLORS } from '../src/constants/theme';
 
 interface LoadingStateProps {
@@ -8,12 +8,20 @@ interface LoadingStateProps {
 }
 
 export const LoadingState: React.FC<LoadingStateProps> = ({ fullScreen = true }) => {
-  const Container = fullScreen ? SafeAreaView : View;
+  if (fullScreen) {
+    return (
+      <GradientBackground>
+        <View style={styles.container}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      </GradientBackground>
+    );
+  }
 
   return (
-    <Container style={styles.container}>
+    <View style={styles.container}>
       <ActivityIndicator size="large" color={COLORS.primary} />
-    </Container>
+    </View>
   );
 };
 
@@ -22,6 +30,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
   },
 });

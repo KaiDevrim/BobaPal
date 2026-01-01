@@ -7,7 +7,7 @@ import Drink from './model/Drink';
 const adapter = new SQLiteAdapter({
   schema,
   migrations,
-  jsi: true,
+  // Disable JSI for Expo compatibility - JSI requires special native setup
   onSetUpError: (error) => {
     console.error('Database setup error:', error);
   },

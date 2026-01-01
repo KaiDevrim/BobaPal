@@ -1,5 +1,6 @@
 export { default as BottomBar } from './BottomBar';
 export { default as MyDrinkCard } from './MyDrinkCard';
+export { default as GradientBackground } from './GradientBackground';
 export { FormField } from './FormField';
 export { Button } from './Button';
 export { StatsCard } from './StatsCard';

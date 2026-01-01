@@ -1,14 +1,13 @@
 import React, { useEffect, useState, memo } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
 import { RootStackParamList } from '../src/types/navigation';
 import { useS3Image } from '../hooks/useS3Image';
-import { LoadingState, DetailRow, Button } from '../components';
+import { LoadingState, DetailRow, Button, GradientBackground } from '../components';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
 import { RATING_EMOJIS } from '../src/constants';
 
@@ -48,57 +47,59 @@ const DrinkDetail: React.FC = () => {
 
   if (!drink) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <Text>Drink not found</Text>
-      </SafeAreaView>
+      <GradientBackground>
+        <View style={styles.loadingContainer}>
+          <Text>Drink not found</Text>
+        </View>
+      </GradientBackground>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.imageContainer}>
-        <Image
-          source={imageUrl ? { uri: imageUrl } : require('../assets/boba2.jpg')}
-          style={styles.image}
-          placeholder={{ blurhash: PLACEHOLDER_BLURHASH }}
-          contentFit="cover"
-          transition={300}
-          cachePolicy="disk"
+    <GradientBackground>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.imageContainer}>
+          <Image
+            source={imageUrl ? { uri: imageUrl } : require('../assets/boba2.jpg')}
+            style={styles.image}
+            placeholder={{ blurhash: PLACEHOLDER_BLURHASH }}
+            contentFit="cover"
+            transition={300}
+            cachePolicy="disk"
+          />
+        </View>
+
+        <DetailRow label="Flavor" value={drink.flavor} />
+        <DetailRow label="Price" value={`$${drink.price.toFixed(2)}`} />
+        <DetailRow label="Store" value={drink.store} />
+        <DetailRow label="Occasion" value={drink.occasion} />
+        <DetailRow label="Date" value={drink.date} />
+
+        <Text style={styles.label}>Rating</Text>
+        <Text style={styles.ratingEmoji}>{RATING_EMOJIS[drink.rating] || '—'}</Text>
+
+        <Button
+          title="Edit Drink"
+          onPress={handleEdit}
+          variant="secondary"
+          style={styles.editButton}
         />
-      </View>
-
-      <DetailRow label="Flavor" value={drink.flavor} />
-      <DetailRow label="Price" value={`$${drink.price.toFixed(2)}`} />
-      <DetailRow label="Store" value={drink.store} />
-      <DetailRow label="Occasion" value={drink.occasion} />
-      <DetailRow label="Date" value={drink.date} />
-
-      <Text style={styles.label}>Rating</Text>
-      <Text style={styles.ratingEmoji}>{RATING_EMOJIS[drink.rating] || '—'}</Text>
-
-      <Button
-        title="Edit Drink"
-        onPress={handleEdit}
-        variant="secondary"
-        style={styles.editButton}
-      />
-    </SafeAreaView>
+      </ScrollView>
+    </GradientBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  scrollContent: {
     alignItems: 'center',
-    backgroundColor: COLORS.background,
     paddingHorizontal: SPACING.xl,
     paddingTop: SPACING.xl,
+    paddingBottom: 100,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
   },
   imageContainer: {
     width: 200,
