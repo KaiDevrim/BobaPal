@@ -27,8 +27,6 @@ export default {
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
     splash: {
-      image: './assets/splash.png',
-      resizeMode: 'contain',
       backgroundColor: '#FFF8F0',
     },
     assetBundlePatterns: ['**/*'],
