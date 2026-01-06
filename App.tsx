@@ -19,7 +19,8 @@ import Stats from './pages/Stats';
 import DrinkDetail from './pages/DrinkDetail';
 import EditDrink from './pages/EditDrink';
 import { syncFromCloud } from './services/syncService';
-
+// TODO: Add app icon to the sign in page at the top
+// TODO: Go through whole app and remove console.logs and add proper error handling and remove in-dev stuff
 // Log app startup
 console.log('[App] Starting BobaPal...');
 

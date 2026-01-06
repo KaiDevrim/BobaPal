@@ -3,6 +3,11 @@ import { View, Text, StyleSheet, Platform } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
 
+// TODO: Retrieve previous locations from the database
+// TODO: Open map in full screen when tapped
+// TODO: Allow user to search for nearby boba stores
+// TODO: Allow user to zoom in and out of the map
+
 export interface VisitedLocation {
   id: string;
   storeName: string;
