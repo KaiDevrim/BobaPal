@@ -100,13 +100,6 @@ export default {
               },
             ],
           },
-          android: {
-            // Use Kotlin 2.0.21 for KSP compatibility with WatermelonDB
-            kotlinVersion: '2.0.21',
-            packagingOptions: {
-              pickFirst: ['**/libc++_shared.so'],
-            },
-          },
         },
       ],
       'expo-font',
