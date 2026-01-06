@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import DatabaseProvider from '@nozbe/watermelondb/DatabaseProvider';
-import { signInWithRedirect } from 'aws-amplify/auth';
-import { useAuthenticator, Authenticator } from '@aws-amplify/ui-react-native';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { signInWithRedirect, getCurrentUser } from 'aws-amplify/auth';
+import { Hub } from 'aws-amplify/utils';
+import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from 'react-native';
 
 import { configureAmplify } from './src/config/amplify';
 import { RootStackParamList, TabParamList } from './src/types/navigation';
@@ -19,10 +19,24 @@ import Stats from './pages/Stats';
 import DrinkDetail from './pages/DrinkDetail';
 import EditDrink from './pages/EditDrink';
 import { syncFromCloud } from './services/syncService';
-import { useCurrentUser } from './hooks/useCurrentUser';
+
+// Log app startup
+console.log('[App] Starting BobaPal...');
 
 // Initialize Amplify before any components render
-configureAmplify();
+try {
+  configureAmplify();
+  console.log('[App] Amplify configured successfully');
+} catch (error) {
+  console.error('[App] Failed to configure Amplify:', error);
+}
+
+// Validate that all page components are loaded
+if (!Gallery || !AddDrink || !Stats || !DrinkDetail || !EditDrink) {
+  console.error('Missing page components:', { Gallery, AddDrink, Stats, DrinkDetail, EditDrink });
+} else {
+  console.log('[App] All page components loaded successfully');
+}
 
 // Re-export types for backward compatibility
 export type { RootStackParamList, TabParamList };
@@ -39,19 +53,16 @@ const MainTabs: React.FC = () => (
     <Tab.Screen name="Stats" component={Stats} />
   </Tab.Navigator>
 );
+MainTabs.displayName = 'MainTabs';
 
 const AuthenticatedApp: React.FC = () => {
-  const { user } = useCurrentUser();
-
   useEffect(() => {
-    if (user) {
-      syncFromCloud().catch((error) => {
-        if (__DEV__) {
-          console.error('Sync error:', error);
-        }
-      });
-    }
-  }, [user]);
+    syncFromCloud().catch((error) => {
+      if (__DEV__) {
+        console.error('Sync error:', error);
+      }
+    });
+  }, []);
 
   return (
     <DatabaseProvider database={database}>
@@ -67,6 +78,7 @@ const AuthenticatedApp: React.FC = () => {
     </DatabaseProvider>
   );
 };
+AuthenticatedApp.displayName = 'AuthenticatedApp';
 
 const CustomSignIn: React.FC = () => {
   const handleGoogleSignIn = () => {
@@ -88,6 +100,7 @@ const CustomSignIn: React.FC = () => {
     </View>
   );
 };
+CustomSignIn.displayName = 'CustomSignIn';
 
 const authStyles = StyleSheet.create({
   container: {
@@ -131,8 +144,73 @@ const authStyles = StyleSheet.create({
   },
 });
 
-const AppContent: React.FC = () => {
-  const { authStatus } = useAuthenticator((context) => [context.authStatus]);
+type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
+
+const useAuthStatus = (): AuthStatus => {
+  const [status, setStatus] = useState<AuthStatus>('loading');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkAuth = async () => {
+      try {
+        console.log('[Auth] Checking current user...');
+        const user = await getCurrentUser();
+        console.log('[Auth] User found:', user?.userId);
+        if (isMounted) {
+          setStatus('authenticated');
+        }
+      } catch (error) {
+        console.log('[Auth] No user found, showing sign in');
+        if (isMounted) {
+          setStatus('unauthenticated');
+        }
+      }
+    };
+
+    // Add a timeout to prevent hanging on the loading screen
+    const timeoutId = setTimeout(() => {
+      console.log('[Auth] Auth check timed out, defaulting to unauthenticated');
+      if (isMounted) {
+        setStatus((current) => current === 'loading' ? 'unauthenticated' : current);
+      }
+    }, 5000);
+
+    checkAuth();
+
+    const listener = Hub.listen('auth', ({ payload }) => {
+      console.log('[Auth] Hub event:', payload.event);
+      if (payload.event === 'signedIn' || payload.event === 'signInWithRedirect') {
+        if (isMounted) setStatus('authenticated');
+      }
+      if (payload.event === 'signedOut') {
+        if (isMounted) setStatus('unauthenticated');
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+      listener();
+    };
+  }, []);
+
+  return status;
+};
+
+const App: React.FC = () => {
+  const authStatus = useAuthStatus();
+
+  console.log('[App] Current auth status:', authStatus);
+
+  if (authStatus === 'loading') {
+    return (
+      <View style={[authStyles.container, { backgroundColor: '#FFF8F0' }]}>
+        <ActivityIndicator size="large" color="#FF9800" />
+        <Text style={[authStyles.subtitle, { color: '#666666', marginTop: 20 }]}>Loading...</Text>
+      </View>
+    );
+  }
 
   if (authStatus === 'authenticated') {
     return <AuthenticatedApp />;
@@ -140,11 +218,6 @@ const AppContent: React.FC = () => {
 
   return <CustomSignIn />;
 };
-
-const App: React.FC = () => (
-  <Authenticator.Provider>
-    <AppContent />
-  </Authenticator.Provider>
-);
+App.displayName = 'App';
 
 export default App;
