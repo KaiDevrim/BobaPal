@@ -4,7 +4,15 @@ const expoConfig = require('eslint-config-expo/flat');
 module.exports = defineConfig([
   expoConfig,
   {
-    ignores: ['dist/*', '__mocks__/*', 'coverage/*', '*.config.js', 'jest.setup.js'],
+    ignores: [
+      'dist/*',
+      '__mocks__/*',
+      'coverage/*',
+      '*.config.js',
+      'jest.setup.js',
+      'src/aws-exports.js',
+      'amplify/**/*',
+    ],
   },
   {
     files: ['**/__tests__/**/*', '**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx'],

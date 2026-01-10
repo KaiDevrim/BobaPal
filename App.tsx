@@ -161,7 +161,7 @@ const useAuthStatus = (): AuthStatus => {
         if (isMounted) {
           setStatus('authenticated');
         }
-      } catch (error) {
+      } catch {
         console.log('[Auth] No user found, showing sign in');
         if (isMounted) {
           setStatus('unauthenticated');
@@ -173,7 +173,7 @@ const useAuthStatus = (): AuthStatus => {
     const timeoutId = setTimeout(() => {
       console.log('[Auth] Auth check timed out, defaulting to unauthenticated');
       if (isMounted) {
-        setStatus((current) => current === 'loading' ? 'unauthenticated' : current);
+        setStatus((current) => (current === 'loading' ? 'unauthenticated' : current));
       }
     }, 5000);
 

@@ -19,5 +19,26 @@
         "bobapal": {}
       }
     }
+  },
+  "prod": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-bobapal-prod-dd203-authRole",
+      "UnauthRoleArn": "arn:aws:iam::570399905115:role/amplify-bobapal-prod-dd203-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::570399905115:role/amplify-bobapal-prod-dd203-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-bobapal-prod-dd203-deployment",
+      "UnauthRoleName": "amplify-bobapal-prod-dd203-unauthRole",
+      "StackName": "amplify-bobapal-prod-dd203",
+      "StackId": "arn:aws:cloudformation:us-east-2:570399905115:stack/amplify-bobapal-prod-dd203/eea9ed70-ee55-11f0-8f55-0227e0265f33",
+      "AmplifyAppId": "d2wgmsilvzgad6"
+    },
+    "categories": {
+      "auth": {
+        "bobapal849bb214": {}
+      },
+      "storage": {
+        "bobapal": {}
+      }
+    }
   }
 }

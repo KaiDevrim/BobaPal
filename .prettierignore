@@ -1,0 +1,13 @@
+# Auto-generated files
+amplify/
+src/aws-exports.js
+
+# Build output
+dist/
+coverage/
+ios/build/
+android/build/
+
+# Node modules
+node_modules/
+
