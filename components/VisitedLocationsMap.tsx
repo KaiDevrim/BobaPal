@@ -9,10 +9,13 @@ import {
   SafeAreaView,
   StatusBar,
   Dimensions,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS, SHADOWS } from '../src/constants/theme';
+import { searchNearbyBobaShops, NearbyBobaShop } from '../services/placesService';
 
 export interface VisitedLocation {
   id: string;
@@ -42,6 +45,10 @@ const VisitedLocationsMap: React.FC<VisitedLocationsMapProps> = memo(
     const fullScreenMapRef = useRef<MapView>(null);
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [isLocating, setIsLocating] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
+    const [nearbyShops, setNearbyShops] = useState<NearbyBobaShop[]>([]);
+    const [showNearbyShops, setShowNearbyShops] = useState(false);
+    const [currentMapRegion, setCurrentMapRegion] = useState<Region | null>(null);
 
     // Calculate the region to fit all markers
     const mapRegion = useMemo(() => {
@@ -86,6 +93,8 @@ const VisitedLocationsMap: React.FC<VisitedLocationsMapProps> = memo(
 
     const handleCloseFullScreen = useCallback(() => {
       setIsFullScreen(false);
+      setShowNearbyShops(false);
+      setNearbyShops([]);
     }, []);
 
     const handleGoToCurrentLocation = useCallback(async () => {
@@ -93,6 +102,10 @@ const VisitedLocationsMap: React.FC<VisitedLocationsMapProps> = memo(
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
+          Alert.alert(
+            'Permission Denied',
+            'Please enable location permissions to use this feature.'
+          );
           return;
         }
 
@@ -112,6 +125,7 @@ const VisitedLocationsMap: React.FC<VisitedLocationsMapProps> = memo(
         if (__DEV__) {
           console.error('Failed to get current location:', error);
         }
+        Alert.alert('Error', 'Failed to get your current location.');
       } finally {
         setIsLocating(false);
       }
@@ -120,6 +134,101 @@ const VisitedLocationsMap: React.FC<VisitedLocationsMapProps> = memo(
     const handleFitAllMarkers = useCallback(() => {
       fullScreenMapRef.current?.animateToRegion(mapRegion, 500);
     }, [mapRegion]);
+
+    const handleZoomIn = useCallback(() => {
+      const region = currentMapRegion || mapRegion;
+      const newRegion: Region = {
+        ...region,
+        latitudeDelta: region.latitudeDelta / 2,
+        longitudeDelta: region.longitudeDelta / 2,
+      };
+      fullScreenMapRef.current?.animateToRegion(newRegion, 300);
+    }, [currentMapRegion, mapRegion]);
+
+    const handleZoomOut = useCallback(() => {
+      const region = currentMapRegion || mapRegion;
+      const newRegion: Region = {
+        ...region,
+        latitudeDelta: Math.min(region.latitudeDelta * 2, 180),
+        longitudeDelta: Math.min(region.longitudeDelta * 2, 180),
+      };
+      fullScreenMapRef.current?.animateToRegion(newRegion, 300);
+    }, [currentMapRegion, mapRegion]);
+
+    const handleSearchNearby = useCallback(async () => {
+      setIsSearching(true);
+      try {
+        // Get current location for search
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert(
+            'Permission Denied',
+            'Please enable location permissions to search for nearby shops.'
+          );
+          return;
+        }
+
+        const location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+
+        const shops = await searchNearbyBobaShops({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+
+        if (shops.length === 0) {
+          Alert.alert('No Results', 'No boba shops found nearby. Try a different area.');
+          return;
+        }
+
+        setNearbyShops(shops);
+        setShowNearbyShops(true);
+
+        // Fit map to show all nearby shops
+        if (shops.length > 0 && fullScreenMapRef.current) {
+          const lats = shops.map((s) => s.latitude);
+          const lngs = shops.map((s) => s.longitude);
+
+          const minLat = Math.min(...lats, location.coords.latitude);
+          const maxLat = Math.max(...lats, location.coords.latitude);
+          const minLng = Math.min(...lngs, location.coords.longitude);
+          const maxLng = Math.max(...lngs, location.coords.longitude);
+
+          const centerLat = (minLat + maxLat) / 2;
+          const centerLng = (minLng + maxLng) / 2;
+
+          const latDelta = Math.max((maxLat - minLat) * 1.5, 0.02);
+          const lngDelta = Math.max((maxLng - minLng) * 1.5, 0.02);
+
+          fullScreenMapRef.current.animateToRegion(
+            {
+              latitude: centerLat,
+              longitude: centerLng,
+              latitudeDelta: latDelta,
+              longitudeDelta: lngDelta,
+            },
+            500
+          );
+        }
+      } catch (error) {
+        if (__DEV__) {
+          console.error('Failed to search nearby:', error);
+        }
+        Alert.alert('Error', 'Failed to search for nearby boba shops.');
+      } finally {
+        setIsSearching(false);
+      }
+    }, []);
+
+    const handleHideNearbyShops = useCallback(() => {
+      setShowNearbyShops(false);
+      setNearbyShops([]);
+    }, []);
+
+    const handleRegionChange = useCallback((region: Region) => {
+      setCurrentMapRegion(region);
+    }, []);
 
     if (locations.length === 0) {
       return (
@@ -147,7 +256,9 @@ const VisitedLocationsMap: React.FC<VisitedLocationsMapProps> = memo(
         pitchEnabled={isFullScreenMap}
         rotateEnabled={isFullScreenMap}
         zoomEnabled
-        scrollEnabled={isFullScreenMap}>
+        scrollEnabled={isFullScreenMap}
+        onRegionChangeComplete={isFullScreenMap ? handleRegionChange : undefined}>
+        {/* Visited locations markers */}
         {locations.map((location) => (
           <Marker
             key={location.id}
@@ -160,6 +271,20 @@ const VisitedLocationsMap: React.FC<VisitedLocationsMapProps> = memo(
             pinColor={getMarkerColor(location.visitCount)}
           />
         ))}
+        {/* Nearby boba shops markers */}
+        {showNearbyShops &&
+          nearbyShops.map((shop) => (
+            <Marker
+              key={shop.placeId}
+              coordinate={{
+                latitude: shop.latitude,
+                longitude: shop.longitude,
+              }}
+              title={shop.name}
+              description={shop.address}
+              pinColor="#4A90E2" // Blue for nearby shops
+            />
+          ))}
       </MapView>
     );
 
@@ -181,6 +306,12 @@ const VisitedLocationsMap: React.FC<VisitedLocationsMapProps> = memo(
           <View style={[styles.legendDot, { backgroundColor: '#FF5722' }]} />
           <Text style={styles.legendText}>10+</Text>
         </View>
+        {showNearbyShops && (
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: '#4A90E2' }]} />
+            <Text style={styles.legendText}>Nearby</Text>
+          </View>
+        )}
       </View>
     );
 
@@ -218,13 +349,27 @@ const VisitedLocationsMap: React.FC<VisitedLocationsMapProps> = memo(
               <View style={styles.headerPlaceholder} />
             </View>
 
+            {/* Zoom Controls */}
+            <View style={styles.zoomControls}>
+              <TouchableOpacity style={styles.zoomButton} onPress={handleZoomIn}>
+                <Text style={styles.zoomButtonText}>+</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.zoomButton} onPress={handleZoomOut}>
+                <Text style={styles.zoomButtonText}>−</Text>
+              </TouchableOpacity>
+            </View>
+
             {/* Map Controls */}
             <View style={styles.mapControls}>
               <TouchableOpacity
                 style={[styles.controlButton, isLocating && styles.controlButtonDisabled]}
                 onPress={handleGoToCurrentLocation}
                 disabled={isLocating}>
-                <Text style={styles.controlButtonText}>{isLocating ? '⏳' : '📍'}</Text>
+                {isLocating ? (
+                  <ActivityIndicator size="small" color={COLORS.primary} />
+                ) : (
+                  <Text style={styles.controlButtonText}>📍</Text>
+                )}
                 <Text style={styles.controlButtonLabel}>My Location</Text>
               </TouchableOpacity>
 
@@ -232,7 +377,34 @@ const VisitedLocationsMap: React.FC<VisitedLocationsMapProps> = memo(
                 <Text style={styles.controlButtonText}>🗺️</Text>
                 <Text style={styles.controlButtonLabel}>Fit All</Text>
               </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.controlButton,
+                  styles.searchButton,
+                  isSearching && styles.controlButtonDisabled,
+                ]}
+                onPress={showNearbyShops ? handleHideNearbyShops : handleSearchNearby}
+                disabled={isSearching}>
+                {isSearching ? (
+                  <ActivityIndicator size="small" color={COLORS.background} />
+                ) : (
+                  <Text style={styles.controlButtonText}>{showNearbyShops ? '✕' : '🔍'}</Text>
+                )}
+                <Text style={[styles.controlButtonLabel, styles.searchButtonLabel]}>
+                  {showNearbyShops ? 'Hide' : 'Find Boba'}
+                </Text>
+              </TouchableOpacity>
             </View>
+
+            {/* Nearby Shops Count Badge */}
+            {showNearbyShops && nearbyShops.length > 0 && (
+              <View style={styles.nearbyBadge}>
+                <Text style={styles.nearbyBadgeText}>
+                  🧋 {nearbyShops.length} boba shop{nearbyShops.length > 1 ? 's' : ''} nearby
+                </Text>
+              </View>
+            )}
 
             {/* Legend */}
             <View style={styles.fullScreenLegend}>
@@ -391,6 +563,47 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.xs,
     color: COLORS.text.secondary,
     marginTop: SPACING.xs,
+  },
+  searchButton: {
+    backgroundColor: COLORS.primary,
+  },
+  searchButtonLabel: {
+    color: COLORS.background,
+  },
+  zoomControls: {
+    position: 'absolute',
+    top: 120,
+    right: SPACING.lg,
+    gap: SPACING.xs,
+  },
+  zoomButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...SHADOWS.md,
+  },
+  zoomButtonText: {
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: 'bold',
+    color: COLORS.text.primary,
+  },
+  nearbyBadge: {
+    position: 'absolute',
+    top: 120,
+    left: SPACING.lg,
+    backgroundColor: '#4A90E2',
+    borderRadius: BORDER_RADIUS.full,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    ...SHADOWS.sm,
+  },
+  nearbyBadgeText: {
+    color: COLORS.background,
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
   },
   fullScreenLegend: {
     position: 'absolute',

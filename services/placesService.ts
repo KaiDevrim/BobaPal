@@ -16,6 +16,14 @@ export interface PlaceDetails {
   longitude: number;
 }
 
+export interface NearbyBobaShop {
+  placeId: string;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+}
+
 const PLACES_API_BASE = 'https://places.googleapis.com/v1';
 
 /**
@@ -189,6 +197,77 @@ export const searchNearbyBobaPlaces = async (location: Coordinates): Promise<Pla
   } catch (error) {
     if (__DEV__) {
       console.error('Error searching nearby places:', error);
+    }
+    return [];
+  }
+};
+
+/**
+ * Search for nearby boba/bubble tea shops with full location data
+ * Returns shops that can be displayed on a map with markers
+ */
+export const searchNearbyBobaShops = async (location: Coordinates): Promise<NearbyBobaShop[]> => {
+  const apiKey = getGooglePlacesApiKey();
+  if (!apiKey) {
+    if (__DEV__) {
+      console.warn('Google Places API key not configured');
+    }
+    return [];
+  }
+
+  try {
+    // Use text search to find boba/bubble tea places specifically
+    const requestBody = {
+      textQuery: 'boba tea bubble tea',
+      maxResultCount: 20,
+      locationBias: {
+        circle: {
+          center: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+          },
+          radius: 5000.0, // 5km radius
+        },
+      },
+    };
+
+    const response = await fetch(`${PLACES_API_BASE}/places:searchText`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      if (__DEV__) {
+        console.error('Nearby boba search error:', data.error.message, data.error.status);
+      }
+      return [];
+    }
+
+    return (data.places || [])
+      .filter((place: Record<string, unknown>) => {
+        const loc = place.location as Record<string, number> | undefined;
+        return loc?.latitude && loc?.longitude;
+      })
+      .map((place: Record<string, unknown>) => {
+        const loc = place.location as Record<string, number>;
+        return {
+          placeId: (place.id as string) || '',
+          name: (place.displayName as Record<string, string>)?.text || '',
+          address: (place.formattedAddress as string) || '',
+          latitude: loc.latitude,
+          longitude: loc.longitude,
+        };
+      });
+  } catch (error) {
+    if (__DEV__) {
+      console.error('Error searching nearby boba shops:', error);
     }
     return [];
   }

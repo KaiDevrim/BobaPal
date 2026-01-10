@@ -9,7 +9,12 @@ jest.mock('../../src/config/secrets', () => ({
 }));
 
 // Import after mocking
-import { searchBobaPlaces, getPlaceDetails, searchNearbyBobaPlaces } from '../placesService';
+import {
+  searchBobaPlaces,
+  getPlaceDetails,
+  searchNearbyBobaPlaces,
+  searchNearbyBobaShops,
+} from '../placesService';
 
 describe('placesService', () => {
   beforeEach(() => {
@@ -220,6 +225,122 @@ describe('placesService', () => {
       });
 
       const result = await searchNearbyBobaPlaces({ latitude: 37.77, longitude: -122.41 });
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('searchNearbyBobaShops', () => {
+    it('returns empty array when no API key', async () => {
+      mockApiKey = '';
+      const result = await searchNearbyBobaShops({ latitude: 37.77, longitude: -122.41 });
+      expect(result).toEqual([]);
+    });
+
+    it('returns nearby boba shops with coordinates on success', async () => {
+      mockApiKey = 'test-key';
+
+      (global.fetch as jest.Mock).mockResolvedValue({
+        json: () =>
+          Promise.resolve({
+            places: [
+              {
+                id: 'boba1',
+                displayName: { text: 'Kung Fu Tea' },
+                formattedAddress: '123 Boba St',
+                location: { latitude: 37.7749, longitude: -122.4194 },
+              },
+              {
+                id: 'boba2',
+                displayName: { text: 'Boba Guys' },
+                formattedAddress: '456 Tea Ave',
+                location: { latitude: 37.7849, longitude: -122.4094 },
+              },
+            ],
+          }),
+      });
+
+      const result = await searchNearbyBobaShops({ latitude: 37.77, longitude: -122.41 });
+
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual({
+        placeId: 'boba1',
+        name: 'Kung Fu Tea',
+        address: '123 Boba St',
+        latitude: 37.7749,
+        longitude: -122.4194,
+      });
+      expect(result[1].latitude).toBe(37.7849);
+    });
+
+    it('filters out places without location data', async () => {
+      mockApiKey = 'test-key';
+
+      (global.fetch as jest.Mock).mockResolvedValue({
+        json: () =>
+          Promise.resolve({
+            places: [
+              {
+                id: 'boba1',
+                displayName: { text: 'Kung Fu Tea' },
+                formattedAddress: '123 Boba St',
+                location: { latitude: 37.7749, longitude: -122.4194 },
+              },
+              {
+                id: 'boba2',
+                displayName: { text: 'No Location Tea' },
+                formattedAddress: '456 Tea Ave',
+                // No location field
+              },
+            ],
+          }),
+      });
+
+      const result = await searchNearbyBobaShops({ latitude: 37.77, longitude: -122.41 });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe('Kung Fu Tea');
+    });
+
+    it('handles empty results', async () => {
+      mockApiKey = 'test-key';
+
+      (global.fetch as jest.Mock).mockResolvedValue({
+        json: () =>
+          Promise.resolve({
+            places: [],
+          }),
+      });
+
+      const result = await searchNearbyBobaShops({ latitude: 37.77, longitude: -122.41 });
+
+      expect(result).toEqual([]);
+    });
+
+    it('handles API error', async () => {
+      mockApiKey = 'test-key';
+
+      (global.fetch as jest.Mock).mockResolvedValue({
+        json: () =>
+          Promise.resolve({
+            error: {
+              message: 'Invalid API key',
+              status: 'INVALID_ARGUMENT',
+            },
+          }),
+      });
+
+      const result = await searchNearbyBobaShops({ latitude: 37.77, longitude: -122.41 });
+
+      expect(result).toEqual([]);
+    });
+
+    it('handles network errors', async () => {
+      mockApiKey = 'test-key';
+
+      (global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
+
+      const result = await searchNearbyBobaShops({ latitude: 37.77, longitude: -122.41 });
 
       expect(result).toEqual([]);
     });

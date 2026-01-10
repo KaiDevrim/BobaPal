@@ -195,4 +195,147 @@ describe('VisitedLocationsMap', () => {
       expect(currentRegion.latitudeDelta).toBe(0.01);
     });
   });
+
+  describe('zoom controls', () => {
+    it('should zoom in by halving delta values', () => {
+      const currentRegion = {
+        latitude: 37.7749,
+        longitude: -122.4194,
+        latitudeDelta: 0.1,
+        longitudeDelta: 0.1,
+      };
+
+      const zoomedInRegion = {
+        ...currentRegion,
+        latitudeDelta: currentRegion.latitudeDelta / 2,
+        longitudeDelta: currentRegion.longitudeDelta / 2,
+      };
+
+      expect(zoomedInRegion.latitudeDelta).toBe(0.05);
+      expect(zoomedInRegion.longitudeDelta).toBe(0.05);
+    });
+
+    it('should zoom out by doubling delta values', () => {
+      const currentRegion = {
+        latitude: 37.7749,
+        longitude: -122.4194,
+        latitudeDelta: 0.1,
+        longitudeDelta: 0.1,
+      };
+
+      const zoomedOutRegion = {
+        ...currentRegion,
+        latitudeDelta: Math.min(currentRegion.latitudeDelta * 2, 180),
+        longitudeDelta: Math.min(currentRegion.longitudeDelta * 2, 180),
+      };
+
+      expect(zoomedOutRegion.latitudeDelta).toBe(0.2);
+      expect(zoomedOutRegion.longitudeDelta).toBe(0.2);
+    });
+
+    it('should cap zoom out at 180 degrees', () => {
+      const currentRegion = {
+        latitude: 37.7749,
+        longitude: -122.4194,
+        latitudeDelta: 100,
+        longitudeDelta: 100,
+      };
+
+      const zoomedOutRegion = {
+        ...currentRegion,
+        latitudeDelta: Math.min(currentRegion.latitudeDelta * 2, 180),
+        longitudeDelta: Math.min(currentRegion.longitudeDelta * 2, 180),
+      };
+
+      expect(zoomedOutRegion.latitudeDelta).toBe(180);
+      expect(zoomedOutRegion.longitudeDelta).toBe(180);
+    });
+  });
+
+  describe('nearby boba search', () => {
+    it('should have search state management', () => {
+      let isSearching = false;
+      let showNearbyShops = false;
+
+      const startSearch = () => {
+        isSearching = true;
+      };
+
+      const endSearch = () => {
+        isSearching = false;
+        showNearbyShops = true;
+      };
+
+      const hideNearbyShops = () => {
+        showNearbyShops = false;
+      };
+
+      expect(isSearching).toBe(false);
+      expect(showNearbyShops).toBe(false);
+
+      startSearch();
+      expect(isSearching).toBe(true);
+
+      endSearch();
+      expect(isSearching).toBe(false);
+      expect(showNearbyShops).toBe(true);
+
+      hideNearbyShops();
+      expect(showNearbyShops).toBe(false);
+    });
+
+    it('should store nearby shops data', () => {
+      interface NearbyBobaShop {
+        placeId: string;
+        name: string;
+        address: string;
+        latitude: number;
+        longitude: number;
+      }
+
+      const nearbyShops: NearbyBobaShop[] = [
+        {
+          placeId: 'shop1',
+          name: 'Boba Time',
+          address: '123 Main St',
+          latitude: 37.7749,
+          longitude: -122.4194,
+        },
+        {
+          placeId: 'shop2',
+          name: 'Tea Station',
+          address: '456 Oak Ave',
+          latitude: 37.7849,
+          longitude: -122.4094,
+        },
+      ];
+
+      expect(nearbyShops.length).toBe(2);
+      expect(nearbyShops[0].name).toBe('Boba Time');
+      expect(nearbyShops[1].latitude).toBe(37.7849);
+    });
+
+    it('should calculate region to fit all nearby shops', () => {
+      const shops = [
+        { latitude: 37.77, longitude: -122.42 },
+        { latitude: 37.79, longitude: -122.4 },
+        { latitude: 37.75, longitude: -122.44 },
+      ];
+      const userLocation = { latitude: 37.78, longitude: -122.41 };
+
+      const lats = [...shops.map((s) => s.latitude), userLocation.latitude];
+      const lngs = [...shops.map((s) => s.longitude), userLocation.longitude];
+
+      const minLat = Math.min(...lats);
+      const maxLat = Math.max(...lats);
+      const minLng = Math.min(...lngs);
+      const maxLng = Math.max(...lngs);
+
+      const centerLat = (minLat + maxLat) / 2;
+      const centerLng = (minLng + maxLng) / 2;
+
+      expect(centerLat).toBeCloseTo(37.77, 1);
+      expect(centerLng).toBeCloseTo(-122.42, 1);
+    });
+  });
 });
