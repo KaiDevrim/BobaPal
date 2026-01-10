@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -7,10 +7,12 @@ import DatabaseProvider from '@nozbe/watermelondb/DatabaseProvider';
 import { signInWithRedirect, getCurrentUser } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { configureAmplify } from './src/config/amplify';
 import { RootStackParamList, TabParamList } from './src/types/navigation';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS, SHADOWS } from './src/constants/theme';
+import { LocalUserProvider } from './src/context/LocalUserContext';
 import database from './database/index.native';
 import { BottomBar } from './components';
 import Gallery from './pages/Gallery';
@@ -64,33 +66,38 @@ const MainTabs: React.FC = () => (
 );
 MainTabs.displayName = 'MainTabs';
 
-const AuthenticatedApp: React.FC = () => {
+const AuthenticatedApp: React.FC<{ isLocalUser: boolean }> = ({ isLocalUser }) => {
   useEffect(() => {
-    syncFromCloud().catch((error) => {
-      if (__DEV__) {
-        console.error('Sync error:', error);
-      }
-    });
-  }, []);
+    // Only sync for authenticated (non-local) users
+    if (!isLocalUser) {
+      syncFromCloud().catch((error) => {
+        if (__DEV__) {
+          console.error('Sync error:', error);
+        }
+      });
+    }
+  }, [isLocalUser]);
 
   return (
-    <DatabaseProvider database={database}>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="MainTabs" component={MainTabs} />
-            <Stack.Screen name="DrinkDetail" component={DrinkDetail} />
-            <Stack.Screen name="EditDrink" component={EditDrink} />
-            <Stack.Screen name="Profile" component={Profile} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </DatabaseProvider>
+    <LocalUserProvider>
+      <DatabaseProvider database={database}>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="MainTabs" component={MainTabs} />
+              <Stack.Screen name="DrinkDetail" component={DrinkDetail} />
+              <Stack.Screen name="EditDrink" component={EditDrink} />
+              <Stack.Screen name="Profile" component={Profile} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </DatabaseProvider>
+    </LocalUserProvider>
   );
 };
 AuthenticatedApp.displayName = 'AuthenticatedApp';
 
-const CustomSignIn: React.FC = () => {
+const CustomSignIn: React.FC<{ onSkipLogin: () => void }> = ({ onSkipLogin }) => {
   const handleGoogleSignIn = () => {
     signInWithRedirect({ provider: 'Google' });
   };
@@ -107,6 +114,12 @@ const CustomSignIn: React.FC = () => {
         />
         <Text style={authStyles.googleButtonText}>Continue with Google</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={authStyles.skipButton} onPress={onSkipLogin}>
+        <Text style={authStyles.skipButtonText}>Use without account</Text>
+      </TouchableOpacity>
+
+      <Text style={authStyles.skipHint}>Your data will be stored locally only</Text>
     </View>
   );
 };
@@ -152,18 +165,59 @@ const authStyles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.text.primary,
   },
+  skipButton: {
+    marginTop: SPACING.xl,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.xxl,
+  },
+  skipButtonText: {
+    fontSize: FONT_SIZES.md,
+    color: COLORS.text.secondary,
+    textDecorationLine: 'underline',
+  },
+  skipHint: {
+    marginTop: SPACING.sm,
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.text.light,
+    textAlign: 'center',
+  },
 });
 
-type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
+type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated' | 'local';
 
-const useAuthStatus = (): AuthStatus => {
+const LOCAL_USER_KEY = '@bobapal:isLocalUser';
+
+const useAuthStatus = (): {
+  status: AuthStatus;
+  setLocalUser: () => void;
+  clearLocalUser: () => Promise<void>;
+} => {
   const [status, setStatus] = useState<AuthStatus>('loading');
+
+  const setLocalUser = useCallback(() => {
+    AsyncStorage.setItem(LOCAL_USER_KEY, 'true');
+    setStatus('local');
+  }, []);
+
+  const clearLocalUser = useCallback(async () => {
+    await AsyncStorage.removeItem(LOCAL_USER_KEY);
+    setStatus('unauthenticated');
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
 
     const checkAuth = async () => {
       try {
+        // First check if user is in local mode
+        const isLocalUser = await AsyncStorage.getItem(LOCAL_USER_KEY);
+        if (isLocalUser === 'true') {
+          if (isMounted) {
+            setStatus('local');
+          }
+          return;
+        }
+
         console.log('[Auth] Checking current user...');
         const user = await getCurrentUser();
         console.log('[Auth] User found:', user?.userId);
@@ -205,11 +259,11 @@ const useAuthStatus = (): AuthStatus => {
     };
   }, []);
 
-  return status;
+  return { status, setLocalUser, clearLocalUser };
 };
 
 const App: React.FC = () => {
-  const authStatus = useAuthStatus();
+  const { status: authStatus, setLocalUser } = useAuthStatus();
 
   console.log('[App] Current auth status:', authStatus);
 
@@ -223,10 +277,14 @@ const App: React.FC = () => {
   }
 
   if (authStatus === 'authenticated') {
-    return <AuthenticatedApp />;
+    return <AuthenticatedApp isLocalUser={false} />;
   }
 
-  return <CustomSignIn />;
+  if (authStatus === 'local') {
+    return <AuthenticatedApp isLocalUser={true} />;
+  }
+
+  return <CustomSignIn onSkipLogin={setLocalUser} />;
 };
 App.displayName = 'App';
 

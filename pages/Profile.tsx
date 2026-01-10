@@ -12,6 +12,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { signOut, deleteUser, fetchUserAttributes, getCurrentUser } from 'aws-amplify/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { GradientBackground } from '../components';
 import { RootStackParamList } from '../src/types/navigation';
@@ -21,10 +22,12 @@ interface UserInfo {
   email: string | null;
   signInMethod: string;
   userId: string;
+  isLocalUser: boolean;
 }
 
 const PRIVACY_POLICY_URL = 'https://github.com/KaiDevrim/BobaPal/blob/main/PRIVACY_POLICY.md';
 const CONTACT_EMAIL = 'support@devrim.tech';
+const LOCAL_USER_KEY = '@bobapal:isLocalUser';
 
 const Profile: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -36,6 +39,19 @@ const Profile: React.FC = () => {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
+        // Check if user is in local mode
+        const isLocalUserValue = await AsyncStorage.getItem(LOCAL_USER_KEY);
+        if (isLocalUserValue === 'true') {
+          setUserInfo({
+            email: null,
+            signInMethod: 'Local',
+            userId: 'local-user',
+            isLocalUser: true,
+          });
+          setIsLoading(false);
+          return;
+        }
+
         const user = await getCurrentUser();
         const attributes = await fetchUserAttributes();
 
@@ -65,9 +81,19 @@ const Profile: React.FC = () => {
           email: attributes.email || null,
           signInMethod,
           userId: user.userId,
+          isLocalUser: false,
         });
       } catch (error) {
-        if (__DEV__) {
+        // If we can't get user info, check if local user
+        const isLocalUserValue = await AsyncStorage.getItem(LOCAL_USER_KEY);
+        if (isLocalUserValue === 'true') {
+          setUserInfo({
+            email: null,
+            signInMethod: 'Local',
+            userId: 'local-user',
+            isLocalUser: true,
+          });
+        } else if (__DEV__) {
           console.error('Failed to fetch user info:', error);
         }
       } finally {
@@ -79,7 +105,12 @@ const Profile: React.FC = () => {
   }, []);
 
   const handleSignOut = useCallback(async () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+    const isLocal = userInfo?.isLocalUser;
+    const message = isLocal
+      ? 'Are you sure you want to sign out? Your local data will be preserved.'
+      : 'Are you sure you want to sign out?';
+
+    Alert.alert('Sign Out', message, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Sign Out',
@@ -87,7 +118,14 @@ const Profile: React.FC = () => {
         onPress: async () => {
           setIsSigningOut(true);
           try {
-            await signOut();
+            if (isLocal) {
+              // Clear local user flag
+              await AsyncStorage.removeItem(LOCAL_USER_KEY);
+              // Force app to re-render by reloading
+              // The auth state will be updated automatically
+            } else {
+              await signOut();
+            }
           } catch (error) {
             if (__DEV__) {
               console.error('Sign out error:', error);
@@ -99,19 +137,26 @@ const Profile: React.FC = () => {
         },
       },
     ]);
-  }, []);
+  }, [userInfo?.isLocalUser]);
 
   const handleDeleteAccount = useCallback(async () => {
-    Alert.alert(
-      'Delete Account',
-      'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            Alert.alert('Confirm Deletion', 'Please type DELETE to confirm account deletion.', [
+    const isLocal = userInfo?.isLocalUser;
+    const message = isLocal
+      ? 'Are you sure you want to delete all local data? This action cannot be undone.'
+      : 'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.';
+
+    Alert.alert(isLocal ? 'Delete Local Data' : 'Delete Account', message, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          Alert.alert(
+            'Confirm Deletion',
+            isLocal
+              ? 'This will delete all your locally stored drinks.'
+              : 'Please type DELETE to confirm account deletion.',
+            [
               { text: 'Cancel', style: 'cancel' },
               {
                 text: 'Confirm',
@@ -119,24 +164,30 @@ const Profile: React.FC = () => {
                 onPress: async () => {
                   setIsDeleting(true);
                   try {
-                    await deleteUser();
-                    Alert.alert('Account Deleted', 'Your account has been deleted successfully.');
+                    if (isLocal) {
+                      // Clear local user flag and data
+                      await AsyncStorage.removeItem(LOCAL_USER_KEY);
+                      Alert.alert('Data Deleted', 'Your local data has been deleted.');
+                    } else {
+                      await deleteUser();
+                      Alert.alert('Account Deleted', 'Your account has been deleted successfully.');
+                    }
                   } catch (error) {
                     if (__DEV__) {
                       console.error('Delete account error:', error);
                     }
-                    Alert.alert('Error', 'Failed to delete account. Please try again.');
+                    Alert.alert('Error', 'Failed to delete. Please try again.');
                   } finally {
                     setIsDeleting(false);
                   }
                 },
               },
-            ]);
-          },
+            ]
+          );
         },
-      ]
-    );
-  }, []);
+      },
+    ]);
+  }, [userInfo?.isLocalUser]);
 
   const handlePrivacyPolicy = useCallback(async () => {
     try {
@@ -184,12 +235,23 @@ const Profile: React.FC = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account Information</Text>
 
+          {userInfo?.isLocalUser && (
+            <View style={styles.localUserBanner}>
+              <Text style={styles.localUserBannerText}>📱 Local Mode</Text>
+              <Text style={styles.localUserBannerSubtext}>Data is stored on this device only</Text>
+            </View>
+          )}
+
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Sign-in Method</Text>
-              <View style={styles.methodBadge}>
+              <View style={[styles.methodBadge, userInfo?.isLocalUser && styles.localMethodBadge]}>
                 <Text style={styles.methodText}>
-                  {userInfo?.signInMethod === 'Google' ? '🔵 ' : '📧 '}
+                  {userInfo?.signInMethod === 'Google'
+                    ? '🔵 '
+                    : userInfo?.isLocalUser
+                      ? '📱 '
+                      : '📧 '}
                   {userInfo?.signInMethod || 'Unknown'}
                 </Text>
               </View>
@@ -241,7 +303,9 @@ const Profile: React.FC = () => {
             {isDeleting ? (
               <ActivityIndicator size="small" color={COLORS.error} />
             ) : (
-              <Text style={styles.deleteText}>Delete Account</Text>
+              <Text style={styles.deleteText}>
+                {userInfo?.isLocalUser ? 'Delete Local Data' : 'Delete Account'}
+              </Text>
             )}
           </TouchableOpacity>
         </View>
@@ -331,10 +395,32 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.xs,
     borderRadius: BORDER_RADIUS.sm,
   },
+  localMethodBadge: {
+    backgroundColor: '#E3F2FD',
+  },
   methodText: {
     fontSize: FONT_SIZES.sm,
     color: COLORS.text.primary,
     fontWeight: '600',
+  },
+  localUserBanner: {
+    backgroundColor: '#E3F2FD',
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: '#90CAF9',
+    alignItems: 'center',
+  },
+  localUserBannerText: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    color: '#1565C0',
+  },
+  localUserBannerSubtext: {
+    fontSize: FONT_SIZES.sm,
+    color: '#1976D2',
+    marginTop: SPACING.xs,
   },
   linkButton: {
     flexDirection: 'row',

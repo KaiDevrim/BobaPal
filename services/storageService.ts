@@ -1,15 +1,31 @@
 import { uploadData, getUrl, remove } from 'aws-amplify/storage';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface UploadResult {
   s3Key: string;
   url: string;
 }
 
+const LOCAL_USER_KEY = '@bobapal:isLocalUser';
+
+/**
+ * Check if the current user is in local mode
+ */
+const isLocalUser = async (): Promise<boolean> => {
+  const value = await AsyncStorage.getItem(LOCAL_USER_KEY);
+  return value === 'true';
+};
+
 /**
  * Get the current user's identity ID
  */
 export const getIdentityId = async (): Promise<string> => {
+  // For local users, return a placeholder
+  if (await isLocalUser()) {
+    return 'local-user';
+  }
+
   const session = await fetchAuthSession();
   if (!session.identityId) {
     throw new Error('No identity ID found in session');
@@ -19,8 +35,15 @@ export const getIdentityId = async (): Promise<string> => {
 
 /**
  * Upload an image to S3
+ * For local users, just return the local URI
  */
 export const uploadImage = async (uri: string, fileName: string): Promise<UploadResult> => {
+  // For local users, don't upload to S3 - just use the local URI
+  if (await isLocalUser()) {
+    const s3Key = `local/${Date.now()}_${fileName}`;
+    return { s3Key, url: uri };
+  }
+
   const identityId = await getIdentityId();
   const s3Key = `drinks/${Date.now()}_${fileName}`;
 
@@ -49,8 +72,15 @@ export const uploadImage = async (uri: string, fileName: string): Promise<Upload
 
 /**
  * Get a signed URL for an S3 image
+ * For local users, the s3Key is actually the local URI
  */
 export const getImageUrl = async (s3Key: string): Promise<string> => {
+  // For local users, the s3Key is the local URI
+  if ((await isLocalUser()) || s3Key.startsWith('local/') || s3Key.startsWith('file://')) {
+    // Return a placeholder or the original URI if available
+    return s3Key;
+  }
+
   const identityId = await getIdentityId();
 
   const result = await getUrl({
@@ -63,8 +93,14 @@ export const getImageUrl = async (s3Key: string): Promise<string> => {
 
 /**
  * Delete an image from S3
+ * For local users, this is a no-op
  */
 export const deleteImage = async (s3Key: string): Promise<void> => {
+  // For local users, nothing to delete from S3
+  if ((await isLocalUser()) || s3Key.startsWith('local/')) {
+    return;
+  }
+
   const identityId = await getIdentityId();
 
   await remove({

@@ -1,10 +1,20 @@
 import { uploadData, downloadData } from 'aws-amplify/storage';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
 import type { DrinkData } from '../src/types';
 
 const BACKUP_FILE = 'backup/drinks.json';
+const LOCAL_USER_KEY = '@bobapal:isLocalUser';
+
+/**
+ * Check if the current user is in local mode
+ */
+const isLocalUser = async (): Promise<boolean> => {
+  const value = await AsyncStorage.getItem(LOCAL_USER_KEY);
+  return value === 'true';
+};
 
 /**
  * Get the current user's identity ID
@@ -37,6 +47,14 @@ const drinkToData = (drink: Drink): DrinkData => ({
  * Sync local drinks to cloud storage
  */
 export const syncToCloud = async (): Promise<void> => {
+  // Skip sync for local users
+  if (await isLocalUser()) {
+    if (__DEV__) {
+      console.log('[Sync] Skipping sync - local user');
+    }
+    return;
+  }
+
   const userId = await getUserId();
 
   const drinks = await database.collections.get<Drink>('drinks').query().fetch();
@@ -67,6 +85,14 @@ export const syncToCloud = async (): Promise<void> => {
  * Sync drinks from cloud storage to local database
  */
 export const syncFromCloud = async (): Promise<void> => {
+  // Skip sync for local users
+  if (await isLocalUser()) {
+    if (__DEV__) {
+      console.log('[Sync] Skipping sync - local user');
+    }
+    return;
+  }
+
   const userId = await getUserId();
 
   try {
