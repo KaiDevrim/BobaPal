@@ -14,11 +14,13 @@ describe('Type exports', () => {
         MainTabs: undefined,
         DrinkDetail: { drinkId: 'test-id' },
         EditDrink: { drinkId: 'test-id' },
+        Profile: undefined,
       };
 
       expect(routes.MainTabs).toBeUndefined();
       expect(routes.DrinkDetail.drinkId).toBe('test-id');
       expect(routes.EditDrink.drinkId).toBe('test-id');
+      expect(routes.Profile).toBeUndefined();
     });
 
     it('TabParamList has correct shape', () => {

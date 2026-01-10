@@ -1,6 +1,6 @@
 # Privacy Policy for BobaPal
 
-**Last Updated: [DATE]**
+**Last Updated: 2026-01-10**
 
 ## Introduction
 
@@ -56,7 +56,7 @@ You have the right to:
 - **Deletion**: Request deletion of your account and data
 - **Export**: Export your data in a portable format
 
-To exercise these rights, contact us at [YOUR_EMAIL].
+To exercise these rights, contact us at bobapal@devrim.tech.
 
 ## Data Retention
 
@@ -82,8 +82,8 @@ We may update this Privacy Policy from time to time. We will notify you of any c
 ## Contact Us
 
 If you have questions about this Privacy Policy, please contact us at:
-- Email: [YOUR_EMAIL]
-- Website: [YOUR_WEBSITE]
+- Email: bobapal@devrim.tech
+- Website: devrim.tech
 
 ## California Privacy Rights (CCPA)
 
@@ -103,5 +103,5 @@ EU residents have additional rights under GDPR:
 - Right to data portability
 - Right to object
 
-For GDPR inquiries, contact our Data Protection Officer at [DPO_EMAIL].
+For GDPR inquiries, contact our Data Protection Officer at gdpr@devrim.tech.
 

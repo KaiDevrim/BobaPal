@@ -70,7 +70,7 @@ export default {
             },
             {
               scheme: 'https',
-              host: 'bobapal.devrim.tech',
+              host: 'devrim.tech',
               pathPrefix: '/',
             },
           ],

@@ -4,9 +4,9 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import database from '../database/index.native';
 import Drink from '../database/model/Drink';
-import { MyDrinkCard, EmptyState, GradientBackground } from '../components';
+import { MyDrinkCard, GradientBackground } from '../components';
 import { RootStackParamList } from '../src/types/navigation';
-import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS, SHADOWS } from '../src/constants/theme';
 import { prefetchImages } from '../services/imageCacheService';
 
 interface MonthlyStats {
@@ -68,6 +68,10 @@ const Gallery: React.FC = () => {
     [navigation]
   );
 
+  const handleProfilePress = useCallback(() => {
+    navigation.navigate('Profile');
+  }, [navigation]);
+
   const renderItem = useCallback(
     ({ item }: { item: Drink }) => (
       <TouchableOpacity onPress={() => handleDrinkPress(item.id)} activeOpacity={0.8}>
@@ -82,6 +86,14 @@ const Gallery: React.FC = () => {
   const renderHeader = useCallback(
     () => (
       <View style={styles.headerContainer}>
+        {/* Top row with title and profile button */}
+        <View style={styles.topRow}>
+          <Text style={styles.pageTitle}>🧋 BobaPal</Text>
+          <TouchableOpacity style={styles.profileButton} onPress={handleProfilePress}>
+            <Text style={styles.profileButtonText}>👤</Text>
+          </TouchableOpacity>
+        </View>
+
         <Text style={styles.headerTitle}>This Month</Text>
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
@@ -100,11 +112,26 @@ const Gallery: React.FC = () => {
         <Text style={styles.sectionTitle}>Your Recent Drinks</Text>
       </View>
     ),
-    [monthlyStats]
+    [monthlyStats, handleProfilePress]
   );
 
   if (drinks.length === 0) {
-    return <EmptyState title="Your Boba Gallery" message="Add some boba to see your collection!" />;
+    return (
+      <GradientBackground>
+        <View style={styles.container}>
+          <View style={styles.topRow}>
+            <Text style={styles.pageTitle}>🧋 BobaPal</Text>
+            <TouchableOpacity style={styles.profileButton} onPress={handleProfilePress}>
+              <Text style={styles.profileButtonText}>👤</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyTitle}>Your Boba Gallery</Text>
+            <Text style={styles.emptyMessage}>Add some boba to see your collection!</Text>
+          </View>
+        </View>
+      </GradientBackground>
+    );
   }
 
   return (
@@ -137,6 +164,31 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     marginBottom: SPACING.lg,
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+  },
+  pageTitle: {
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: 'bold',
+    color: COLORS.text.accent,
+  },
+  profileButton: {
+    width: 40,
+    height: 40,
+    borderRadius: BORDER_RADIUS.full,
+    backgroundColor: COLORS.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.sm,
+  },
+  profileButtonText: {
+    fontSize: FONT_SIZES.lg,
   },
   headerTitle: {
     fontSize: FONT_SIZES.lg,
@@ -182,6 +234,22 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingBottom: 100,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyTitle: {
+    fontSize: FONT_SIZES.xl,
+    fontWeight: 'bold',
+    color: COLORS.text.accent,
+    marginBottom: SPACING.sm,
+  },
+  emptyMessage: {
+    fontSize: FONT_SIZES.md,
+    color: COLORS.text.secondary,
+    textAlign: 'center',
   },
 });
 

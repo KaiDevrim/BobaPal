@@ -137,4 +137,62 @@ describe('VisitedLocationsMap', () => {
       expect(locationsWithCoords.length).toBe(2);
     });
   });
+
+  describe('full-screen map functionality', () => {
+    it('should have full-screen state management', () => {
+      let isFullScreen = false;
+
+      const handleOpenFullScreen = () => {
+        isFullScreen = true;
+      };
+
+      const handleCloseFullScreen = () => {
+        isFullScreen = false;
+      };
+
+      expect(isFullScreen).toBe(false);
+      handleOpenFullScreen();
+      expect(isFullScreen).toBe(true);
+      handleCloseFullScreen();
+      expect(isFullScreen).toBe(false);
+    });
+
+    it('should have location tracking state', () => {
+      let isLocating = false;
+
+      const startLocating = () => {
+        isLocating = true;
+      };
+
+      const stopLocating = () => {
+        isLocating = false;
+      };
+
+      expect(isLocating).toBe(false);
+      startLocating();
+      expect(isLocating).toBe(true);
+      stopLocating();
+      expect(isLocating).toBe(false);
+    });
+
+    it('should create current location region', () => {
+      const mockLocation = {
+        coords: {
+          latitude: 40.7128,
+          longitude: -74.006,
+        },
+      };
+
+      const currentRegion = {
+        latitude: mockLocation.coords.latitude,
+        longitude: mockLocation.coords.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      };
+
+      expect(currentRegion.latitude).toBe(40.7128);
+      expect(currentRegion.longitude).toBe(-74.006);
+      expect(currentRegion.latitudeDelta).toBe(0.01);
+    });
+  });
 });

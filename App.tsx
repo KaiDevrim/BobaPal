@@ -18,6 +18,7 @@ import AddDrink from './pages/AddDrink';
 import Stats from './pages/Stats';
 import DrinkDetail from './pages/DrinkDetail';
 import EditDrink from './pages/EditDrink';
+import Profile from './pages/Profile';
 import { syncFromCloud } from './services/syncService';
 // TODO: Add app icon to the sign in page at the top
 // TODO: Go through whole app and remove console.logs and add proper error handling and remove in-dev stuff
@@ -33,8 +34,15 @@ try {
 }
 
 // Validate that all page components are loaded
-if (!Gallery || !AddDrink || !Stats || !DrinkDetail || !EditDrink) {
-  console.error('Missing page components:', { Gallery, AddDrink, Stats, DrinkDetail, EditDrink });
+if (!Gallery || !AddDrink || !Stats || !DrinkDetail || !EditDrink || !Profile) {
+  console.error('Missing page components:', {
+    Gallery,
+    AddDrink,
+    Stats,
+    DrinkDetail,
+    EditDrink,
+    Profile,
+  });
 } else {
   console.log('[App] All page components loaded successfully');
 }
@@ -73,6 +81,7 @@ const AuthenticatedApp: React.FC = () => {
             <Stack.Screen name="MainTabs" component={MainTabs} />
             <Stack.Screen name="DrinkDetail" component={DrinkDetail} />
             <Stack.Screen name="EditDrink" component={EditDrink} />
+            <Stack.Screen name="Profile" component={Profile} />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>
