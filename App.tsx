@@ -124,8 +124,7 @@ const CustomSignIn: React.FC<{ onSkipLogin: () => void }> = ({ onSkipLogin }) =>
       <TouchableOpacity
         style={[authStyles.googleButton, isLoading && authStyles.googleButtonDisabled]}
         onPress={handleGoogleSignIn}
-        disabled={isLoading}
-      >
+        disabled={isLoading}>
         {isLoading ? (
           <ActivityIndicator size="small" color={COLORS.text.primary} />
         ) : (
@@ -278,15 +277,22 @@ const useAuthStatus = (): {
     checkAuth();
 
     const listener = Hub.listen('auth', ({ payload }) => {
-      console.log('[Auth] Hub event:', payload.event, JSON.stringify(payload.data, null, 2));
-      if (payload.event === 'signedIn' || payload.event === 'signInWithRedirect') {
+      // Hub payload typing is a union and doesn't always include `data`.
+      // Cast to `any` only for reading optional diagnostic fields to keep TS happy.
+      const anyPayload = payload as any;
+      const event = anyPayload.event as string;
+      const eventData = anyPayload.data ?? anyPayload.message ?? undefined;
+
+      console.log('[Auth] Hub event:', event, eventData ? eventData : '');
+
+      if (event === 'signedIn' || event === 'signInWithRedirect') {
         if (isMounted) setStatus('authenticated');
       }
-      if (payload.event === 'signedOut') {
+      if (event === 'signedOut') {
         if (isMounted) setStatus('unauthenticated');
       }
-      if (payload.event === 'signInWithRedirect_failure') {
-        console.error('[Auth] Sign in redirect failed. Error:', payload.data);
+      if (event === 'signInWithRedirect_failure') {
+        console.error('[Auth] Sign in redirect failed. Error:', eventData ?? payload);
         // Stay on unauthenticated to allow retry
         if (isMounted) setStatus('unauthenticated');
       }

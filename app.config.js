@@ -95,6 +95,7 @@ export default {
           },
           android: {
             kotlinVersion: '2.0.0',
+            javaVersion: '17',
           },
         },
       ],

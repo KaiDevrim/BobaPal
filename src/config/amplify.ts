@@ -27,7 +27,13 @@ export const configureAmplify = (): void => {
         loginWith: {
           oauth: {
             domain: config.oauth.domain,
-            scopes: config.oauth.scope as ('email' | 'profile' | 'openid' | 'phone' | 'aws.cognito.signin.user.admin')[],
+            scopes: config.oauth.scope as (
+              | 'email'
+              | 'profile'
+              | 'openid'
+              | 'phone'
+              | 'aws.cognito.signin.user.admin'
+            )[],
             redirectSignIn: [config.oauth.redirectSignIn],
             redirectSignOut: [config.oauth.redirectSignOut],
             responseType: config.oauth.responseType as 'code',
