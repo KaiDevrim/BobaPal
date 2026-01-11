@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { signOut, deleteUser, fetchUserAttributes, getCurrentUser } from 'aws-amplify/auth';
+import { signOut, deleteUser, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { GradientBackground } from '../components';
@@ -53,32 +53,55 @@ const Profile: React.FC = () => {
         }
 
         const user = await getCurrentUser();
-        const attributes = await fetchUserAttributes();
+        const session = await fetchAuthSession();
 
-        // Determine sign-in method
+        // Get user info from ID token payload
+        const idToken = session.tokens?.idToken;
+        let email: string | null = null;
         let signInMethod = 'Email';
-        if (attributes.identities) {
-          try {
-            const identities = JSON.parse(attributes.identities);
-            if (identities.length > 0) {
-              const provider = identities[0].providerName;
-              if (provider === 'Google') {
-                signInMethod = 'Google';
-              } else if (provider === 'Facebook') {
-                signInMethod = 'Facebook';
-              } else if (provider === 'Apple') {
-                signInMethod = 'Apple';
-              } else {
-                signInMethod = provider || 'Social';
+
+        if (idToken) {
+          const payload = idToken.payload;
+          email = (payload.email as string) || null;
+
+          // Check for social provider in identities or cognito:username
+          const identities = payload.identities as string | undefined;
+          const username = payload['cognito:username'] as string | undefined;
+
+          if (identities) {
+            try {
+              const parsedIdentities = JSON.parse(identities);
+              if (parsedIdentities.length > 0) {
+                const provider = parsedIdentities[0].providerName;
+                if (provider === 'Google') {
+                  signInMethod = 'Google';
+                } else if (provider === 'Facebook') {
+                  signInMethod = 'Facebook';
+                } else if (provider === 'SignInWithApple') {
+                  signInMethod = 'Apple';
+                } else {
+                  signInMethod = provider || 'Social';
+                }
               }
+            } catch {
+              // If parsing fails, check username pattern
             }
-          } catch {
-            // If parsing fails, default to Email
+          }
+
+          // Fallback: check if username starts with Google_
+          if (signInMethod === 'Email' && username) {
+            if (username.startsWith('Google_') || username.startsWith('google_')) {
+              signInMethod = 'Google';
+            } else if (username.startsWith('Facebook_') || username.startsWith('facebook_')) {
+              signInMethod = 'Facebook';
+            } else if (username.startsWith('SignInWithApple_') || username.startsWith('apple_')) {
+              signInMethod = 'Apple';
+            }
           }
         }
 
         setUserInfo({
-          email: attributes.email || null,
+          email,
           signInMethod,
           userId: user.userId,
           isLocalUser: false,

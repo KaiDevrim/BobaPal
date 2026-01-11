@@ -1,7 +1,7 @@
 {
-  "resourceName": "bobapal",
-  "policyUUID": "b5c8e8f6",
-  "bucketName": "bobapal-bucket",
+  "resourceName": "bobapaldev",
+  "policyUUID": "a34f9c3d",
+  "bucketName": "bobapaldevbucket",
   "storageAccess": "auth",
   "guestAccess": [],
   "authAccess": [

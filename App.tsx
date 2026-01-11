@@ -98,8 +98,20 @@ const AuthenticatedApp: React.FC<{ isLocalUser: boolean }> = ({ isLocalUser }) =
 AuthenticatedApp.displayName = 'AuthenticatedApp';
 
 const CustomSignIn: React.FC<{ onSkipLogin: () => void }> = ({ onSkipLogin }) => {
-  const handleGoogleSignIn = () => {
-    signInWithRedirect({ provider: 'Google' });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      console.log('[Auth] Starting Google sign in...');
+      await signInWithRedirect({ provider: 'Google' });
+    } catch (err) {
+      console.error('[Auth] Google sign in error:', err);
+      setError('Failed to sign in with Google. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -107,15 +119,27 @@ const CustomSignIn: React.FC<{ onSkipLogin: () => void }> = ({ onSkipLogin }) =>
       <Text style={authStyles.title}>🧋 BobaPal</Text>
       <Text style={authStyles.subtitle}>Track your boba adventures</Text>
 
-      <TouchableOpacity style={authStyles.googleButton} onPress={handleGoogleSignIn}>
-        <Image
-          source={{ uri: 'https://developers.google.com/identity/images/g-logo.png' }}
-          style={authStyles.googleIcon}
-        />
-        <Text style={authStyles.googleButtonText}>Continue with Google</Text>
+      {error && <Text style={authStyles.errorText}>{error}</Text>}
+
+      <TouchableOpacity
+        style={[authStyles.googleButton, isLoading && authStyles.googleButtonDisabled]}
+        onPress={handleGoogleSignIn}
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <ActivityIndicator size="small" color={COLORS.text.primary} />
+        ) : (
+          <>
+            <Image
+              source={{ uri: 'https://developers.google.com/identity/images/g-logo.png' }}
+              style={authStyles.googleIcon}
+            />
+            <Text style={authStyles.googleButtonText}>Continue with Google</Text>
+          </>
+        )}
       </TouchableOpacity>
 
-      <TouchableOpacity style={authStyles.skipButton} onPress={onSkipLogin}>
+      <TouchableOpacity style={authStyles.skipButton} onPress={onSkipLogin} disabled={isLoading}>
         <Text style={authStyles.skipButtonText}>Use without account</Text>
       </TouchableOpacity>
 
@@ -144,16 +168,27 @@ const authStyles = StyleSheet.create({
     color: COLORS.text.secondary,
     marginBottom: 40,
   },
+  errorText: {
+    fontSize: FONT_SIZES.sm,
+    color: '#dc2626',
+    marginBottom: SPACING.md,
+    textAlign: 'center',
+  },
   googleButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: COLORS.background,
     paddingVertical: 14,
     paddingHorizontal: SPACING.xxl,
     borderRadius: BORDER_RADIUS.md,
     borderWidth: 1,
     borderColor: COLORS.border,
+    minWidth: 250,
     ...SHADOWS.sm,
+  },
+  googleButtonDisabled: {
+    opacity: 0.6,
   },
   googleIcon: {
     width: 24,
@@ -243,11 +278,16 @@ const useAuthStatus = (): {
     checkAuth();
 
     const listener = Hub.listen('auth', ({ payload }) => {
-      console.log('[Auth] Hub event:', payload.event);
+      console.log('[Auth] Hub event:', payload.event, JSON.stringify(payload.data, null, 2));
       if (payload.event === 'signedIn' || payload.event === 'signInWithRedirect') {
         if (isMounted) setStatus('authenticated');
       }
       if (payload.event === 'signedOut') {
+        if (isMounted) setStatus('unauthenticated');
+      }
+      if (payload.event === 'signInWithRedirect_failure') {
+        console.error('[Auth] Sign in redirect failed. Error:', payload.data);
+        // Stay on unauthenticated to allow retry
         if (isMounted) setStatus('unauthenticated');
       }
     });

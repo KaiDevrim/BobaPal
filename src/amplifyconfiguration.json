@@ -1,27 +1,41 @@
 {
   "aws_project_region": "us-east-2",
-  "aws_cognito_identity_pool_id": "us-east-2:11829083-03b6-4a70-b829-589ce4865753",
+  "aws_cognito_identity_pool_id": "us-east-2:d38346e3-b0dc-449f-ab97-414993ab93cd",
   "aws_cognito_region": "us-east-2",
-  "aws_user_pools_id": "us-east-2_EOZoq2fHR",
-  "aws_user_pools_web_client_id": "7vsmr4jl2p351n2kpmec4j3c0q",
+  "aws_user_pools_id": "us-east-2_z7Yjupqdv",
+  "aws_user_pools_web_client_id": "1958b61p7hbjg7p2hu1g02959i",
   "oauth": {
-    "domain": "bobapal-dev.auth.us-east-2.amazoncognito.com",
-    "scope": ["phone", "email", "openid", "profile", "aws.cognito.signin.user.admin"],
+    "domain": "bobapal-dev-dev.auth.us-east-2.amazoncognito.com",
+    "scope": [
+      "email",
+      "openid",
+      "profile"
+    ],
     "redirectSignIn": "bobapal://",
     "redirectSignOut": "bobapal://",
     "responseType": "code"
   },
   "federationTarget": "COGNITO_USER_POOLS",
-  "aws_cognito_username_attributes": ["EMAIL"],
-  "aws_cognito_social_providers": ["GOOGLE"],
-  "aws_cognito_signup_attributes": [],
+  "aws_cognito_username_attributes": [
+    "EMAIL"
+  ],
+  "aws_cognito_social_providers": [
+    "GOOGLE"
+  ],
+  "aws_cognito_signup_attributes": [
+    "EMAIL"
+  ],
   "aws_cognito_mfa_configuration": "OFF",
-  "aws_cognito_mfa_types": ["SMS"],
+  "aws_cognito_mfa_types": [
+    "SMS"
+  ],
   "aws_cognito_password_protection_settings": {
     "passwordPolicyMinLength": 8,
     "passwordPolicyCharacters": []
   },
-  "aws_cognito_verification_mechanisms": ["EMAIL"],
-  "aws_user_files_s3_bucket": "bobapal-bucketfae31-dev",
+  "aws_cognito_verification_mechanisms": [
+    "EMAIL"
+  ],
+  "aws_user_files_s3_bucket": "bobapaldevbucketa93eb-dev",
   "aws_user_files_s3_bucket_region": "us-east-2"
 }

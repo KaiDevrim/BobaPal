@@ -1,6 +1,6 @@
 {
   "auth": {
-    "bobapal849bb214": {
+    "bobapal62cfaaaa": {
       "customAuth": false,
       "dependsOn": [],
       "frontendAuthConfig": {
@@ -12,7 +12,9 @@
           "passwordPolicyCharacters": [],
           "passwordPolicyMinLength": 8
         },
-        "signupAttributes": [],
+        "signupAttributes": [
+          "EMAIL"
+        ],
         "socialProviders": [
           "GOOGLE"
         ],
@@ -28,7 +30,7 @@
     }
   },
   "storage": {
-    "bobapal": {
+    "bobapaldev": {
       "dependsOn": [],
       "providerPlugin": "awscloudformation",
       "service": "S3"

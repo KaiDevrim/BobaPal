@@ -1,10 +1,10 @@
 {
   "version": "1",
   "cognitoConfig": {
-    "identityPoolName": "bobapal849bb214_identitypool_849bb214",
+    "identityPoolName": "bobapal62cfaaaa_identitypool_62cfaaaa",
     "allowUnauthenticatedIdentities": false,
-    "resourceNameTruncated": "bobapa849bb214",
-    "userPoolName": "bobapal849bb214_userpool_849bb214",
+    "resourceNameTruncated": "bobapa62cfaaaa",
+    "userPoolName": "bobapal62cfaaaa_userpool_62cfaaaa",
     "autoVerifiedAttributes": [
       "email"
     ],
@@ -19,7 +19,9 @@
     "defaultPasswordPolicy": false,
     "passwordPolicyMinLength": 8,
     "passwordPolicyCharacters": [],
-    "requiredAttributes": [],
+    "requiredAttributes": [
+      "email"
+    ],
     "aliasAttributes": [],
     "userpoolClientGenerateSecret": false,
     "userpoolClientRefreshTokenValidity": 30,
@@ -29,10 +31,10 @@
     "userpoolClientReadAttributes": [
       "email"
     ],
-    "userpoolClientLambdaRole": "bobapa849bb214_userpoolclient_lambda_role",
+    "userpoolClientLambdaRole": "bobapa62cfaaaa_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
-    "sharedId": "849bb214",
-    "resourceName": "bobapal849bb214",
+    "sharedId": "62cfaaaa",
+    "resourceName": "bobapal62cfaaaa",
     "authSelections": "identityPoolAndUserPool",
     "useDefault": "defaultSocial",
     "hostedUI": true,
@@ -40,11 +42,11 @@
       "email"
     ],
     "triggers": {},
-    "hostedUIDomainName": "bobapal",
+    "hostedUIDomainName": "bobapal-dev",
     "authProvidersUserPool": [
       "Google"
     ],
-    "hostedUIProviderMeta": "[{\"ProviderName\":\"Google\",\"authorize_scopes\":\"openid profile\",\"AttributeMapping\":{\"username\":\"sub\"}}]",
+    "hostedUIProviderMeta": "[{\"ProviderName\":\"Google\",\"authorize_scopes\":\"openid email profile\",\"AttributeMapping\":{\"email\":\"email\",\"username\":\"sub\"}}]",
     "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"bobapal://\"],\"LogoutURLs\":[\"bobapal://\"]}",
     "userPoolGroupList": [],
     "serviceName": "Cognito",

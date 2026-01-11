@@ -1,6 +1,6 @@
 export type AmplifyDependentResourcesAttributes = {
   "auth": {
-    "bobapal849bb214": {
+    "bobapal62cfaaaa": {
       "AppClientID": "string",
       "AppClientIDWeb": "string",
       "HostedUIDomain": "string",
@@ -13,7 +13,7 @@ export type AmplifyDependentResourcesAttributes = {
     }
   },
   "storage": {
-    "bobapal": {
+    "bobapaldev": {
       "BucketName": "string",
       "Region": "string"
     }
