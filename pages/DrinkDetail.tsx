@@ -21,7 +21,8 @@ const DrinkDetail: React.FC = () => {
   const [drink, setDrink] = useState<Drink | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const { imageUrl } = useS3Image(drink?.s3Key ?? null);
+  // Pass photoUrl as second argument for local images
+  const { imageUrl } = useS3Image(drink?.s3Key ?? null, drink?.photoUrl);
 
   useEffect(() => {
     const fetchDrink = async () => {

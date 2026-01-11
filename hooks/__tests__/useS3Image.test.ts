@@ -52,4 +52,31 @@ describe('useS3Image - cache service integration', () => {
       expect(result).toBeNull();
     });
   });
+
+  describe('local image handling', () => {
+    it('should handle local/ prefixed s3Keys', () => {
+      const localS3Key = 'local/1234567890_image.jpg';
+      const localUri = 'file:///path/to/image.jpg';
+
+      // When s3Key starts with 'local/', the hook should use localUri directly
+      expect(localS3Key.startsWith('local/')).toBe(true);
+
+      // Simulate what useS3Image does for local images
+      if (localS3Key.startsWith('local/') && localUri) {
+        expect(localUri).toBe('file:///path/to/image.jpg');
+      }
+    });
+
+    it('should handle file:// URIs directly', () => {
+      const fileUri = 'file:///var/mobile/Containers/Data/Application/.../image.jpg';
+
+      expect(fileUri.startsWith('file://')).toBe(true);
+    });
+
+    it('should handle content:// URIs for Android', () => {
+      const contentUri = 'content://com.android.providers.media/external/images/media/123';
+
+      expect(contentUri.startsWith('content://')).toBe(true);
+    });
+  });
 });

@@ -47,7 +47,8 @@ const EditDrink: React.FC = () => {
   });
   const [newImageUri, setNewImageUri] = useState<string | null>(null);
 
-  const { imageUrl } = useS3Image(drink?.s3Key ?? null);
+  // Pass photoUrl as second argument for local images
+  const { imageUrl } = useS3Image(drink?.s3Key ?? null, drink?.photoUrl);
 
   // Fetch the drink data
   useEffect(() => {

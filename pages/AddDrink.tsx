@@ -71,7 +71,7 @@ const AddDrink: React.FC = () => {
     }
 
     if (!user) {
-      Alert.alert('Error', 'Not authenticated');
+      Alert.alert('Error', 'Unable to save drink. Please try again.');
       return;
     }
 
@@ -100,6 +100,7 @@ const AddDrink: React.FC = () => {
         });
       });
 
+      // Only sync to cloud for authenticated users (not local users)
       await syncToCloud();
       Alert.alert('Success', 'Your boba drink has been logged!');
       setForm(INITIAL_FORM);

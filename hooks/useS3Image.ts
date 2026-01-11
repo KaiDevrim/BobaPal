@@ -7,7 +7,12 @@ interface UseS3ImageResult {
   refetch: () => void;
 }
 
-export const useS3Image = (s3Key: string | null): UseS3ImageResult => {
+/**
+ * Hook to get an image URL from S3 or local storage
+ * @param s3Key - The S3 key or local key (starting with 'local/')
+ * @param localUri - Optional local URI for local images (the photoUrl from the drink)
+ */
+export const useS3Image = (s3Key: string | null, localUri?: string | null): UseS3ImageResult => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -26,6 +31,24 @@ export const useS3Image = (s3Key: string | null): UseS3ImageResult => {
         return;
       }
 
+      // For local images, use the localUri directly if provided
+      if (s3Key.startsWith('local/') && localUri) {
+        if (mounted) {
+          setImageUrl(localUri);
+          setLoading(false);
+        }
+        return;
+      }
+
+      // For local images without localUri, the s3Key might be the URI itself
+      if (s3Key.startsWith('file://') || s3Key.startsWith('content://')) {
+        if (mounted) {
+          setImageUrl(s3Key);
+          setLoading(false);
+        }
+        return;
+      }
+
       setLoading(true);
       const url = await getCachedImageUrl(s3Key);
 
@@ -40,7 +63,7 @@ export const useS3Image = (s3Key: string | null): UseS3ImageResult => {
     return () => {
       mounted = false;
     };
-  }, [s3Key, refreshKey]);
+  }, [s3Key, localUri, refreshKey]);
 
   return { imageUrl, loading, refetch };
 };

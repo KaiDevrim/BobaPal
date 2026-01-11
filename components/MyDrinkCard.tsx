@@ -9,6 +9,7 @@ interface MyDrinkCardProps {
   title: string;
   date: string;
   s3Key: string | null;
+  photoUrl?: string | null;
 }
 
 // Placeholder blur hash for boba-colored loading state
@@ -28,8 +29,8 @@ const formatDate = (dateString: string): string => {
   }
 };
 
-const MyDrinkCard: React.FC<MyDrinkCardProps> = memo(({ title, date, s3Key }) => {
-  const { imageUrl } = useS3Image(s3Key);
+const MyDrinkCard: React.FC<MyDrinkCardProps> = memo(({ title, date, s3Key, photoUrl }) => {
+  const { imageUrl } = useS3Image(s3Key, photoUrl);
 
   return (
     <View style={styles.card}>

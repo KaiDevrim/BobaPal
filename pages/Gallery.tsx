@@ -75,7 +75,12 @@ const Gallery: React.FC = () => {
   const renderItem = useCallback(
     ({ item }: { item: Drink }) => (
       <TouchableOpacity onPress={() => handleDrinkPress(item.id)} activeOpacity={0.8}>
-        <MyDrinkCard title={item.flavor} date={item.date} s3Key={item.s3Key} />
+        <MyDrinkCard
+          title={item.flavor}
+          date={item.date}
+          s3Key={item.s3Key}
+          photoUrl={item.photoUrl}
+        />
       </TouchableOpacity>
     ),
     [handleDrinkPress]
