@@ -68,11 +68,6 @@ export default {
             {
               scheme: 'bobapal',
             },
-            {
-              scheme: 'https',
-              host: 'devrim.tech',
-              pathPrefix: '/',
-            },
           ],
           category: ['BROWSABLE', 'DEFAULT'],
         },
