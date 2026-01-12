@@ -20,14 +20,22 @@ export const useCurrentUser = (): UseCurrentUserResult => {
 
   const fetchUser = useCallback(async () => {
     try {
-      // First check if user is in local mode
       const localUserFlag = await AsyncStorage.getItem(LOCAL_USER_KEY);
       if (localUserFlag === 'true') {
-        setIsLocalUser(true);
-        setUser({
-          userId: 'local-user',
-          identityId: 'local-user',
-          email: undefined,
+        setIsLocalUser((prev) => {
+          if (!prev) console.log('[useCurrentUser] Detected local user');
+          return true;
+        });
+        setUser((prev) => {
+          if (!prev || prev.userId !== 'local-user') {
+            console.log('[useCurrentUser] Setting local user object');
+            return {
+              userId: 'local-user',
+              identityId: 'local-user',
+              email: undefined,
+            };
+          }
+          return prev;
         });
         setLoading(false);
         return;
@@ -35,25 +43,45 @@ export const useCurrentUser = (): UseCurrentUserResult => {
 
       const currentUser = await getCurrentUser();
       const session = await fetchAuthSession();
-
-      setIsLocalUser(false);
-      setUser({
-        userId: currentUser.userId,
-        identityId: session.identityId || '',
-        email: currentUser.signInDetails?.loginId,
+      setIsLocalUser((prev) => {
+        if (prev) console.log('[useCurrentUser] Switching from local to cloud user');
+        return false;
       });
-    } catch {
-      // Check if local user on error (might be offline)
+      setUser((prev) => {
+        if (!prev || prev.userId !== currentUser.userId) {
+          console.log('[useCurrentUser] Setting cloud user object:', currentUser.userId);
+          return {
+            userId: currentUser.userId,
+            identityId: session.identityId || '',
+            email: currentUser.signInDetails?.loginId,
+          };
+        }
+        return prev;
+      });
+    } catch (err) {
+      console.log('[useCurrentUser] Error fetching user, checking local:', err);
       const localUserFlag = await AsyncStorage.getItem(LOCAL_USER_KEY);
       if (localUserFlag === 'true') {
-        setIsLocalUser(true);
-        setUser({
-          userId: 'local-user',
-          identityId: 'local-user',
-          email: undefined,
+        setIsLocalUser((prev) => {
+          if (!prev) console.log('[useCurrentUser] Fallback: Detected local user');
+          return true;
+        });
+        setUser((prev) => {
+          if (!prev || prev.userId !== 'local-user') {
+            console.log('[useCurrentUser] Fallback: Setting local user object');
+            return {
+              userId: 'local-user',
+              identityId: 'local-user',
+              email: undefined,
+            };
+          }
+          return prev;
         });
       } else {
-        setUser(null);
+        setUser((prev) => {
+          if (prev !== null) console.log('[useCurrentUser] Setting user to null');
+          return null;
+        });
       }
     } finally {
       setLoading(false);
@@ -64,10 +92,20 @@ export const useCurrentUser = (): UseCurrentUserResult => {
     fetchUser();
 
     const listener = Hub.listen('auth', ({ payload }) => {
-      if (payload.event === 'signedIn') fetchUser();
+      if (payload.event === 'signedIn') {
+        console.log('[useCurrentUser] Hub: signedIn event');
+        fetchUser();
+      }
       if (payload.event === 'signedOut') {
-        setUser(null);
-        setIsLocalUser(false);
+        console.log('[useCurrentUser] Hub: signedOut event');
+        setUser((prev) => {
+          if (prev !== null) console.log('[useCurrentUser] Hub: Setting user to null');
+          return null;
+        });
+        setIsLocalUser((prev) => {
+          if (prev) console.log('[useCurrentUser] Hub: Clearing local user flag');
+          return false;
+        });
       }
     });
 

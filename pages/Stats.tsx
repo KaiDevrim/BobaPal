@@ -13,6 +13,9 @@ import {
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../src/constants/theme';
 import type { StatsData } from '../src/types';
 
+const formatCurrency = (value: number) =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+
 const Stats: React.FC = () => {
   const [drinks, setDrinks] = useState<Drink[]>([]);
 
@@ -100,7 +103,7 @@ const Stats: React.FC = () => {
         </View>
 
         <View style={styles.cardsRow}>
-          <StatsCard icon="💰" number={`$${stats.totalSpent.toFixed(0)}`} label="SPENT" />
+          <StatsCard icon="💰" number={formatCurrency(stats.totalSpent)} label="SPENT" />
           <StatsCard icon="📊" number={`$${averagePrice.toFixed(2)}`} label="AVG PRICE" />
         </View>
 
@@ -139,7 +142,6 @@ const styles = StyleSheet.create({
   cardsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: SPACING.lg,
     marginBottom: SPACING.lg,
   },
   topStoresContainer: {

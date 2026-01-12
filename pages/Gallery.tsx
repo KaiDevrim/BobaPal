@@ -203,7 +203,6 @@ const styles = StyleSheet.create({
   },
   statsRow: {
     flexDirection: 'row',
-    gap: SPACING.sm,
     marginBottom: SPACING.xl,
   },
   statCard: {
@@ -215,6 +214,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: COLORS.border,
+    marginHorizontal: SPACING.xs,
   },
   statNumber: {
     fontSize: FONT_SIZES.xxl,

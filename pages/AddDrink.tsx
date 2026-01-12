@@ -154,8 +154,12 @@ const AddDrink: React.FC = () => {
         />
 
         <View style={styles.buttonRow}>
-          <Button title="Take Photo" onPress={takePhoto} variant="secondary" />
-          <Button title="Choose Photo" onPress={pickImage} variant="outline" />
+          <View style={styles.buttonWrapper}>
+            <Button title="Take Photo" onPress={takePhoto} variant="secondary" />
+          </View>
+          <View style={styles.buttonWrapper}>
+            <Button title="Choose Photo" onPress={pickImage} variant="outline" />
+          </View>
         </View>
 
         <FormField
@@ -230,8 +234,13 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: 'row',
-    gap: SPACING.sm,
+    justifyContent: 'space-between',
     marginBottom: SPACING.xl,
+    width: '100%',
+  },
+  buttonWrapper: {
+    flex: 1,
+    marginHorizontal: SPACING.xs,
   },
   label: {
     fontSize: FONT_SIZES.md,
@@ -242,12 +251,13 @@ const styles = StyleSheet.create({
   },
   ratingContainer: {
     flexDirection: 'row',
-    gap: SPACING.lg,
+    justifyContent: 'center',
     marginVertical: SPACING.lg,
   },
   emojiButton: {
     padding: SPACING.sm,
     borderRadius: BORDER_RADIUS.md,
+    marginHorizontal: SPACING.sm,
   },
   emoji: {
     fontSize: FONT_SIZES.xxxl,

@@ -274,8 +274,12 @@ const EditDrink: React.FC = () => {
         </View>
 
         <View style={styles.buttonRow}>
-          <Button title="Take Photo" onPress={takePhoto} variant="secondary" />
-          <Button title="Choose Photo" onPress={pickImage} variant="outline" />
+          <View style={styles.buttonWrapper}>
+            <Button title="Take Photo" onPress={takePhoto} variant="secondary" />
+          </View>
+          <View style={styles.buttonWrapper}>
+            <Button title="Choose Photo" onPress={pickImage} variant="outline" />
+          </View>
         </View>
 
         <FormField
@@ -374,8 +378,13 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: 'row',
-    gap: SPACING.sm,
+    justifyContent: 'space-between',
     marginBottom: SPACING.lg,
+    width: '100%',
+  },
+  buttonWrapper: {
+    flex: 1,
+    marginHorizontal: SPACING.xs,
   },
   label: {
     fontSize: FONT_SIZES.md,
@@ -388,7 +397,6 @@ const styles = StyleSheet.create({
   ratingContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: SPACING.md,
     marginVertical: SPACING.md,
     width: '100%',
   },
@@ -396,6 +404,7 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
     borderRadius: BORDER_RADIUS.md,
     backgroundColor: '#f5f5f5',
+    marginHorizontal: SPACING.xs,
   },
   selectedEmojiButton: {
     backgroundColor: COLORS.primary,

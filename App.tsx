@@ -66,9 +66,45 @@ const MainTabs: React.FC = () => (
 );
 MainTabs.displayName = 'MainTabs';
 
+// Defensive SafeAreaProvider wrapper
+const DefensiveSafeAreaProvider: React.FC<React.ComponentProps<typeof SafeAreaProvider>> = ({ children, ...props }) => {
+  // Only pass valid props
+  const safeProps: any = {};
+  if (props.initialMetrics) safeProps.initialMetrics = props.initialMetrics;
+  // Never pass style or padding props
+  return <SafeAreaProvider {...safeProps}>{children}</SafeAreaProvider>;
+};
+
+// Global error boundary
+class GlobalErrorBoundary extends React.Component<{ children: React.ReactNode }, { error: Error | null }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+  componentDidCatch(error: Error, info: any) {
+    console.error('[GlobalErrorBoundary] Caught error:', error, info);
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+          <Text style={{ color: 'red', fontSize: 18, marginBottom: 10 }}>A fatal error occurred:</Text>
+          <Text style={{ color: 'red', fontSize: 14 }}>{this.state.error.message}</Text>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const AuthenticatedApp: React.FC<{ isLocalUser: boolean }> = ({ isLocalUser }) => {
+  // Defensive: catch errors in children
+  const [error, setError] = useState<Error | null>(null);
+
   useEffect(() => {
-    // Only sync for authenticated (non-local) users
     if (!isLocalUser) {
       syncFromCloud().catch((error) => {
         if (__DEV__) {
@@ -78,22 +114,39 @@ const AuthenticatedApp: React.FC<{ isLocalUser: boolean }> = ({ isLocalUser }) =
     }
   }, [isLocalUser]);
 
-  return (
-    <LocalUserProvider>
-      <DatabaseProvider database={database}>
-        <SafeAreaProvider>
-          <NavigationContainer>
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="MainTabs" component={MainTabs} />
-              <Stack.Screen name="DrinkDetail" component={DrinkDetail} />
-              <Stack.Screen name="EditDrink" component={EditDrink} />
-              <Stack.Screen name="Profile" component={Profile} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </SafeAreaProvider>
-      </DatabaseProvider>
-    </LocalUserProvider>
-  );
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+        <Text style={{ color: 'red', fontSize: 18, marginBottom: 10 }}>An error occurred after login:</Text>
+        <Text style={{ color: 'red', fontSize: 14 }}>{error.message}</Text>
+      </View>
+    );
+  }
+
+  try {
+    console.log('[AuthenticatedApp] Rendering with isLocalUser:', isLocalUser);
+    return (
+      <GlobalErrorBoundary>
+        <LocalUserProvider>
+          <DatabaseProvider database={database}>
+            <DefensiveSafeAreaProvider>
+              <NavigationContainer>
+                <Stack.Navigator screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="MainTabs" component={MainTabs} />
+                  <Stack.Screen name="DrinkDetail" component={DrinkDetail} />
+                  <Stack.Screen name="EditDrink" component={EditDrink} />
+                  <Stack.Screen name="Profile" component={Profile} />
+                </Stack.Navigator>
+              </NavigationContainer>
+            </DefensiveSafeAreaProvider>
+          </DatabaseProvider>
+        </LocalUserProvider>
+      </GlobalErrorBoundary>
+    );
+  } catch (err: any) {
+    setError(err);
+    return null;
+  }
 };
 AuthenticatedApp.displayName = 'AuthenticatedApp';
 
@@ -230,12 +283,24 @@ const useAuthStatus = (): {
 
   const setLocalUser = useCallback(() => {
     AsyncStorage.setItem(LOCAL_USER_KEY, 'true');
-    setStatus('local');
+    setStatus((prev) => {
+      if (prev !== 'local') {
+        console.log('[AuthStatus] Switching to local');
+        return 'local';
+      }
+      return prev;
+    });
   }, []);
 
   const clearLocalUser = useCallback(async () => {
     await AsyncStorage.removeItem(LOCAL_USER_KEY);
-    setStatus('unauthenticated');
+    setStatus((prev) => {
+      if (prev !== 'unauthenticated') {
+        console.log('[AuthStatus] Clearing local user, switching to unauthenticated');
+        return 'unauthenticated';
+      }
+      return prev;
+    });
   }, []);
 
   useEffect(() => {
@@ -243,32 +308,48 @@ const useAuthStatus = (): {
 
     const checkAuth = async () => {
       try {
-        // First check if user is in local mode
         const isLocalUser = await AsyncStorage.getItem(LOCAL_USER_KEY);
         if (isLocalUser === 'true') {
           if (isMounted) {
-            setStatus('local');
+            setStatus((prev) => {
+              if (prev !== 'local') {
+                console.log('[AuthStatus] Detected local user');
+                return 'local';
+              }
+              return prev;
+            });
           }
           return;
         }
 
-        console.log('[Auth] Checking current user...');
+        console.log('[AuthStatus] Checking current user...');
         const user = await getCurrentUser();
-        console.log('[Auth] User found:', user?.userId);
+        console.log('[AuthStatus] User found:', user?.userId);
         if (isMounted) {
-          setStatus('authenticated');
+          setStatus((prev) => {
+            if (prev !== 'authenticated') {
+              console.log('[AuthStatus] Switching to authenticated');
+              return 'authenticated';
+            }
+            return prev;
+          });
         }
       } catch {
-        console.log('[Auth] No user found, showing sign in');
+        console.log('[AuthStatus] No user found, showing sign in');
         if (isMounted) {
-          setStatus('unauthenticated');
+          setStatus((prev) => {
+            if (prev !== 'unauthenticated') {
+              console.log('[AuthStatus] Switching to unauthenticated');
+              return 'unauthenticated';
+            }
+            return prev;
+          });
         }
       }
     };
 
-    // Add a timeout to prevent hanging on the loading screen
     const timeoutId = setTimeout(() => {
-      console.log('[Auth] Auth check timed out, defaulting to unauthenticated');
+      console.log('[AuthStatus] Auth check timed out, defaulting to unauthenticated');
       if (isMounted) {
         setStatus((current) => (current === 'loading' ? 'unauthenticated' : current));
       }
@@ -277,24 +358,37 @@ const useAuthStatus = (): {
     checkAuth();
 
     const listener = Hub.listen('auth', ({ payload }) => {
-      // Hub payload typing is a union and doesn't always include `data`.
-      // Cast to `any` only for reading optional diagnostic fields to keep TS happy.
       const anyPayload = payload as any;
       const event = anyPayload.event as string;
       const eventData = anyPayload.data ?? anyPayload.message ?? undefined;
-
-      console.log('[Auth] Hub event:', event, eventData ? eventData : '');
-
+      console.log('[AuthStatus] Hub event:', event, eventData ? eventData : '');
       if (event === 'signedIn' || event === 'signInWithRedirect') {
-        if (isMounted) setStatus('authenticated');
+        setStatus((prev) => {
+          if (prev !== 'authenticated') {
+            console.log('[AuthStatus] Hub: switching to authenticated');
+            return 'authenticated';
+          }
+          return prev;
+        });
       }
       if (event === 'signedOut') {
-        if (isMounted) setStatus('unauthenticated');
+        setStatus((prev) => {
+          if (prev !== 'unauthenticated') {
+            console.log('[AuthStatus] Hub: switching to unauthenticated');
+            return 'unauthenticated';
+          }
+          return prev;
+        });
       }
       if (event === 'signInWithRedirect_failure') {
-        console.error('[Auth] Sign in redirect failed. Error:', eventData ?? payload);
-        // Stay on unauthenticated to allow retry
-        if (isMounted) setStatus('unauthenticated');
+        console.error('[AuthStatus] Sign in redirect failed. Error:', eventData ?? payload);
+        setStatus((prev) => {
+          if (prev !== 'unauthenticated') {
+            console.log('[AuthStatus] Hub: switching to unauthenticated (redirect failure)');
+            return 'unauthenticated';
+          }
+          return prev;
+        });
       }
     });
 
@@ -323,13 +417,16 @@ const App: React.FC = () => {
   }
 
   if (authStatus === 'authenticated') {
+    console.log('[App] Rendering AuthenticatedApp (cloud user)');
     return <AuthenticatedApp isLocalUser={false} />;
   }
 
   if (authStatus === 'local') {
+    console.log('[App] Rendering AuthenticatedApp (local user)');
     return <AuthenticatedApp isLocalUser={true} />;
   }
 
+  console.log('[App] Rendering CustomSignIn');
   return <CustomSignIn onSkipLogin={setLocalUser} />;
 };
 App.displayName = 'App';

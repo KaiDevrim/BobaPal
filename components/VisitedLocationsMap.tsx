@@ -543,7 +543,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 120,
     right: SPACING.lg,
-    gap: SPACING.sm,
   },
   controlButton: {
     backgroundColor: COLORS.background,
@@ -551,6 +550,7 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
     alignItems: 'center',
     minWidth: 80,
+    marginBottom: SPACING.sm,
     ...SHADOWS.md,
   },
   controlButtonDisabled: {
@@ -574,7 +574,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 120,
     right: SPACING.lg,
-    gap: SPACING.xs,
   },
   zoomButton: {
     width: 44,
@@ -583,6 +582,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: SPACING.xs,
     ...SHADOWS.md,
   },
   zoomButtonText: {
