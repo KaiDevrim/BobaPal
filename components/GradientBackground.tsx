@@ -23,9 +23,7 @@ const GradientBackground: React.FC<GradientBackgroundProps> = memo(
         style={[styles.gradient, style]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0.5, y: 1 }}>
-        <View style={styles.content}>
-          {children}
-        </View>
+        <View style={styles.content}>{children}</View>
       </LinearGradient>
     );
   }

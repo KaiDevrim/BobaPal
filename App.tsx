@@ -67,7 +67,10 @@ const MainTabs: React.FC = () => (
 MainTabs.displayName = 'MainTabs';
 
 // Defensive SafeAreaProvider wrapper
-const DefensiveSafeAreaProvider: React.FC<React.ComponentProps<typeof SafeAreaProvider>> = ({ children, ...props }) => {
+const DefensiveSafeAreaProvider: React.FC<React.ComponentProps<typeof SafeAreaProvider>> = ({
+  children,
+  ...props
+}) => {
   // Only pass valid props
   const safeProps: any = {};
   if (props.initialMetrics) safeProps.initialMetrics = props.initialMetrics;
@@ -76,7 +79,10 @@ const DefensiveSafeAreaProvider: React.FC<React.ComponentProps<typeof SafeAreaPr
 };
 
 // Global error boundary
-class GlobalErrorBoundary extends React.Component<{ children: React.ReactNode }, { error: Error | null }> {
+class GlobalErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { error: Error | null }
+> {
   constructor(props: any) {
     super(props);
     this.state = { error: null };
@@ -90,8 +96,16 @@ class GlobalErrorBoundary extends React.Component<{ children: React.ReactNode },
   render() {
     if (this.state.error) {
       return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
-          <Text style={{ color: 'red', fontSize: 18, marginBottom: 10 }}>A fatal error occurred:</Text>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#fff',
+          }}>
+          <Text style={{ color: 'red', fontSize: 18, marginBottom: 10 }}>
+            A fatal error occurred:
+          </Text>
           <Text style={{ color: 'red', fontSize: 14 }}>{this.state.error.message}</Text>
         </View>
       );
@@ -116,8 +130,16 @@ const AuthenticatedApp: React.FC<{ isLocalUser: boolean }> = ({ isLocalUser }) =
 
   if (error) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
-        <Text style={{ color: 'red', fontSize: 18, marginBottom: 10 }}>An error occurred after login:</Text>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#fff',
+        }}>
+        <Text style={{ color: 'red', fontSize: 18, marginBottom: 10 }}>
+          An error occurred after login:
+        </Text>
         <Text style={{ color: 'red', fontSize: 14 }}>{error.message}</Text>
       </View>
     );
