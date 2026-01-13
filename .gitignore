@@ -19,8 +19,8 @@ secrets/
 !.env.example
 
 # iOS/Android build artifacts
-# ios/
-# android/
+ios/
+android/
 
 # macOS
 .DS_Store
