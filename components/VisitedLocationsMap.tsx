@@ -6,7 +6,6 @@ import {
   Platform,
   TouchableOpacity,
   Modal,
-  SafeAreaView,
   StatusBar,
   Dimensions,
   ActivityIndicator,
@@ -14,6 +13,7 @@ import {
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS, SHADOWS } from '../src/constants/theme';
 import { searchNearbyBobaShops, NearbyBobaShop } from '../services/placesService';
 
@@ -49,6 +49,7 @@ const VisitedLocationsMap: React.FC<VisitedLocationsMapProps> = memo(
     const [nearbyShops, setNearbyShops] = useState<NearbyBobaShop[]>([]);
     const [showNearbyShops, setShowNearbyShops] = useState(false);
     const [currentMapRegion, setCurrentMapRegion] = useState<Region | null>(null);
+    const insets = useSafeAreaInsets();
 
     // Calculate the region to fit all markers
     const mapRegion = useMemo(() => {
@@ -334,7 +335,11 @@ const VisitedLocationsMap: React.FC<VisitedLocationsMapProps> = memo(
           animationType="slide"
           presentationStyle="fullScreen"
           onRequestClose={handleCloseFullScreen}>
-          <SafeAreaView style={styles.fullScreenContainer}>
+          <View
+            style={[
+              styles.fullScreenContainer,
+              { paddingTop: insets.top, paddingBottom: insets.bottom },
+            ]}>
             <StatusBar barStyle="dark-content" />
 
             {/* Full Screen Map */}
@@ -411,7 +416,7 @@ const VisitedLocationsMap: React.FC<VisitedLocationsMapProps> = memo(
               <Text style={styles.legendTitle}>Visit frequency:</Text>
               {renderLegend()}
             </View>
-          </SafeAreaView>
+          </View>
         </Modal>
       </>
     );

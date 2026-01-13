@@ -47,7 +47,7 @@ export const searchBobaPlaces = async (
 
   // Debug: Log that API key is present (never log the actual key)
   if (__DEV__) {
-    console.log('🔑 Google Places API key configured:', !!apiKey);
+    console.log('🔑 Google Places API key configured:', apiKey);
   }
 
   try {

@@ -44,6 +44,7 @@ export default {
       },
       config: {
         usesNonExemptEncryption: false,
+        googleMapsApiKey: googlePlacesApiKey,
       },
     },
     android: {
@@ -60,6 +61,11 @@ export default {
         'ACCESS_FINE_LOCATION',
         'ACCESS_COARSE_LOCATION',
       ],
+      config: {
+        googleMaps: {
+          apiKey: googlePlacesApiKey,
+        },
+      },
       intentFilters: [
         {
           action: 'VIEW',
